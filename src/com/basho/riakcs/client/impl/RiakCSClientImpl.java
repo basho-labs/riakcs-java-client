@@ -72,21 +72,69 @@ public class RiakCSClientImpl
 	{
 		if(endpointIsS3()) throw new RiakCSException("Can't create User on AWS S3");
 
-		StringBuffer postData= new StringBuffer();
-		postData.append("email=");
-		postData.append(URLEncoder.encode(emailAddress, "UTF-8").replace("+", "%20"));
-		postData.append("&name=");
-		postData.append(URLEncoder.encode(fullname, "UTF-8").replace("+", "%20"));
+		JSONObject postData= new JSONObject();
+		postData.put("email", emailAddress);
+		postData.put("name", fullname);
+		
 		InputStream dataInputStream= new ByteArrayInputStream(postData.toString().getBytes("UTF-8"));
 
 		Map<String, String> headers= new HashMap<String, String>();
-		headers.put("Content-Type", "application/x-www-form-urlencoded");
+		headers.put("Content-Type", "application/json");
 		headers.put("Content-Length", String.valueOf(dataInputStream.available()));
 		
 		CommunicationLayer comLayer= getCommunicationLayer();
 		
 		URL url= comLayer.generateCSUrl("", "user", EMPTY_STRING_MAP);		
-		HttpURLConnection connection= comLayer.makeUnsignedCall(CommunicationLayer.HttpMethod.POST, url, dataInputStream, headers);
+		HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.POST, url, dataInputStream, headers);
+		InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
+		
+		JSONObject result= new JSONObject(new JSONTokener(inputStreamReader));
+		
+		return result;
+	}
+
+
+	public JSONObject listUsers() throws Exception
+	{
+		if(endpointIsS3()) throw new RiakCSException("Can't retrieve user info from AWS S3");
+
+		Map<String, String> headers= new HashMap<String, String>();
+		headers.put("Accept", "application/json");
+
+		CommunicationLayer comLayer= getCommunicationLayer();
+		
+		URL url= comLayer.generateCSUrl("/riak-cs/users");		
+		HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, headers);
+		InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
+		
+		JSONArray userList= new JSONArray();
+
+		BufferedReader reader= new BufferedReader(inputStreamReader);
+		for (String line; (line= reader.readLine()) != null;)
+		{
+			if(line.startsWith("["))
+			{
+				JSONArray aUserlist= new JSONArray(new JSONTokener(line));
+				for(int pt= 0; pt < aUserlist.length(); pt++)
+					userList.put(aUserlist.getJSONObject(pt));
+			}
+		}
+		  
+		JSONObject result= new JSONObject();
+		result.put("userlist", userList);
+		
+		return result;
+	}
+
+
+	public JSONObject retrieveMyUserInfo() throws Exception
+	{
+		if(endpointIsS3()) throw new RiakCSException("Can't retrieve user info from AWS S3");
+
+		CommunicationLayer comLayer= getCommunicationLayer();
+		
+		URL url= comLayer.generateCSUrl("/riak-cs/user");		
+		HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url);
 		InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
 		
 		JSONObject result= new JSONObject(new JSONTokener(inputStreamReader));

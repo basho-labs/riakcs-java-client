@@ -26,9 +26,14 @@ public class UserOperations
 		RiakCSClient csClient= new RiakCSClient(csCredentials.getCSAccessKey(), csCredentials.getsCSSecretKey(), csCredentials.getCSEndPoint(), false);
 		if (enableDebugOutput) csClient.enableDebugOutput();
 		
-		JSONObject result= csClient.createUser("Hugo Doe", "hugo2@test.com");  // use some non-existing credentials ..
+//		JSONObject result= csClient.createUser("Hugo Doe", "hugo2@test.com");  // use some non-existing credentials ..		
+//		System.out.println(result.toString(2));
 		
-		System.out.println(result.toString(2));
+//		JSONObject userInfo= csClient.retrieveMyUserInfo();
+//		System.out.println(userInfo.toString(2));
+		
+		JSONObject userList= csClient.listUsers();
+		System.out.println(userList.toString(2));
 	}
 
 }

@@ -47,6 +47,7 @@ public class RiakCSClient
 	
 	public JSONObject createUser(String fullname, String emailAddress) throws RiakCSException
 	{
+		// requires CS >= 1.2
 		try
 		{
 			return csClient.createUser(fullname, emailAddress);
@@ -57,6 +58,33 @@ public class RiakCSClient
 		}
 	}
 
+	public JSONObject listUsers() throws RiakCSException
+	{
+		// requires CS >= 1.2
+		try
+		{
+			return csClient.listUsers();
+			
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
+	}
+
+	public JSONObject retrieveMyUserInfo() throws RiakCSException
+	{
+		// requires CS >= 1.2
+		try
+		{
+			return csClient.retrieveMyUserInfo();
+			
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
+	}
+
+	
 	public void createBucket(String bucketName) throws RiakCSException
 	{
 		try
