@@ -64,15 +64,15 @@ public class BucketOperations
 		result= csClient.getACLForBucket(bucketName);
 		System.out.println(result.toString(2));
 
-		if (csClient.endpointIsS3() == false) // just run it against RiakCS
-		{
-			// add additional ACL, user has to exist
-			csClient.addAdditionalACLToBucket(bucketName, "hugo@test.com", RiakCSClient.Permission.WRITE);
-
-			// get ACL
-			result= csClient.getACLForBucket(bucketName);
-			System.out.println(result.toString(2));
-		}
+//		if (csClient.endpointIsS3() == false) // just run it against RiakCS
+//		{
+//			// add additional ACL, user has to exist
+//			csClient.addAdditionalACLToBucket(bucketName, "hugo@test.com", RiakCSClient.Permission.WRITE);
+//
+//			// get ACL
+//			result= csClient.getACLForBucket(bucketName);
+//			System.out.println(result.toString(2));
+//		}
 
 		// set "canned" ACL
 		csClient.setCannedACLForBucket(bucketName, RiakCSClient.PERM_AUTHENTICATED_READ);

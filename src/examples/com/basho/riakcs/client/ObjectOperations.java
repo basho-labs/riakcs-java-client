@@ -81,15 +81,15 @@ public class ObjectOperations
 		System.out.println(result.toString(2));
 
 		// set ACL
-		if (csClient.endpointIsS3() == false)
-		{
-			// add additional ACL, user has to exist
-			csClient.addAdditionalACLToObject(bucketName, objectKey, "hugo@test.com", RiakCSClient.Permission.READ);
-
-			// get ACL
-			result= csClient.getACLForObject(bucketName, objectKey);
-			System.out.println(result.toString(2));
-		}
+//		if (csClient.endpointIsS3() == false)
+//		{
+//			// add additional ACL, user has to exist
+//			csClient.addAdditionalACLToObject(bucketName, objectKey, "hugo@test.com", RiakCSClient.Permission.READ);
+//
+//			// get ACL
+//			result= csClient.getACLForObject(bucketName, objectKey);
+//			System.out.println(result.toString(2));
+//		}
 
 		// set "canned" ACL
 		if (csClient.endpointIsS3()) // there is currently an issue with CS
