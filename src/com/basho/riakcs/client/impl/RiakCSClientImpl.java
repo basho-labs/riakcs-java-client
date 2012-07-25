@@ -417,7 +417,12 @@ public class RiakCSClientImpl
 
 	public JSONObject listObjects(String bucketName) throws RiakCSException
 	{
-		//TO DO .. verify/implement handling of truncated lists
+		return listObjects(bucketName, true);
+	}
+
+	public JSONObject listObjects(String bucketName, boolean extendedList) throws RiakCSException
+	{
+		//TODO switch to more streaming type of mode
 		JSONObject result= new JSONObject();
 		
 		try {
@@ -431,46 +436,30 @@ public class RiakCSClientImpl
 				URL url= comLayer.generateCSUrl(bucketName, "", EMPTY_STRING_MAP);
 				HttpURLConnection conn= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url);
 				
+				result.put("objectList", new JSONArray());
+				
 				Document xmlDoc= XMLUtils.parseToDocument(conn.getInputStream(), debugModeEnabled);
 				List<Node> nodeList= XMLUtils.xpathToNodeList("//Contents", xmlDoc);
 				for (Node node : nodeList)
 				{
 					JSONObject object = new JSONObject();
 					object.put("key", XMLUtils.xpathToContent("Key", node));
-					object.put("size", XMLUtils.xpathToContent("Size", node));
-					object.put("lastModified", XMLUtils.xpathToContent("LastModified", node));
-					object.put("etag", XMLUtils.xpathToContent("ETag", node));
+					if (extendedList)
+					{
+						object.put("size", XMLUtils.xpathToContent("Size", node));
+						object.put("lastModified", XMLUtils.xpathToContent("LastModified", node));
+						object.put("etag", XMLUtils.xpathToContent("ETag", node));
+						
+						JSONObject owner= new JSONObject();
+						owner.put("id", XMLUtils.xpathToContent("Owner/ID", node));
+						owner.put("displayName", XMLUtils.xpathToContent("Owner/DisplayName", node));
+						object.put("owner", owner);
+					}
 					
-					JSONObject owner= new JSONObject();
-					owner.put("id", XMLUtils.xpathToContent("Owner/ID", node));
-					owner.put("displayName", XMLUtils.xpathToContent("Owner/DisplayName", node));
-					object.put("owner", owner);
-				
 					result.append("objectList", object);
 				}
-	
-	//			for (Node node : xpathToNodeList("//CommonPrefixes", xmlDoc))
-	//			{
-	//				objectList.prefixes.add(node.getTextContent());
-	//			}
-	            
-				// Determine whether listing is truncated
-				isTruncated= "true".equals(XMLUtils.xpathToContent("//IsTruncated", xmlDoc));
-				
-				// Set the marker parameter to the NextMarker if possible,
-				// otherwise set it to the last key name in the listing
-	//			if (xpathToContent("//NextMarker", xmlDoc) != null)
-	//			{
-	//				parameters.put("marker", xpathToContent("//NextMarker", xmlDoc));
-	//			} else if (xpathToContent("//Contents/Key", xmlDoc) != null) {
-	//				// Java's XPath implementation doesn't support the 'last()'
-	//				// function, so we must manually find the last Key node.
-	//				List<Node> keys = xpathToNodeList("//Contents/Key", xmlDoc);
-	//				Node lastNode = keys.get(keys.size() - 1);
-	//				parameters.put("marker", lastNode.getTextContent());
-	//			} else {
-	//				parameters.put("marker", "");
-	//			}
+
+				isTruncated= "true".equals(XMLUtils.xpathToContent("//IsTruncated", xmlDoc));				
 			}
 
 		} catch(Exception e)
@@ -764,6 +753,32 @@ public class RiakCSClientImpl
 		return result;
 	}
 
+
+	public void removeBucketAndContent(String bucketName) throws RiakCSException
+	{
+		// prototyping .. work in progress
+		try
+		{
+			JSONObject response= listObjects(bucketName, false);
+			JSONArray resultList= response.getJSONArray("objectList");
+
+			if (debugModeEnabled) System.out.println("Number of Objects to delete: "+ resultList.length() + "\n");
+
+			for(int pt=0; pt < resultList.length(); pt++)
+			{
+				String key= resultList.getJSONObject(pt).getString("key");
+				deleteObject(bucketName, key);
+			}
+
+			deleteBucket(bucketName);
+
+		} catch(JSONException e)
+		{
+			throw new RiakCSException(e);
+		}
+	
+		
+	}
 
 
 	private CommunicationLayer getCommunicationLayer()

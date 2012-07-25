@@ -35,6 +35,8 @@ public class Playground
 		ObjectOperations.runIt(runAgainstS3, debugFlag);
 
 		StatisticOperations.runIt(debugFlag);
+		
+//		ToolOperations.runIt(debugFlag);
 
 	}
 

@@ -113,6 +113,7 @@ public class RiakCSClient
 	
 	public JSONObject listObjects(String bucketName) throws RiakCSException
 	{
+		//Can be slow with large number of objects
 		return csClient.listObjects(bucketName);
 	}
 	
@@ -200,6 +201,12 @@ public class RiakCSClient
 	}
 	
 
+	// Tool APIs
+	public void removeBucketAndContent(String bucketName) throws RiakCSException
+	{
+		// work in progress, not fully tested
+		csClient.removeBucketAndContent(bucketName);
+	}
 
 	private RiakCSClientImpl csClient= null;
 
