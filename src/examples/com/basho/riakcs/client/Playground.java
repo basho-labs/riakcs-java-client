@@ -26,13 +26,13 @@ public class Playground
 //		boolean debugFlag= debugDisabled;
 		boolean debugFlag= debugEnabled;
 
-//		UserOperations.runIt(debugFlag);
+		UserOperations.runIt(debugFlag);
 
 		BucketOperations.runIt(runAgainstCS, debugFlag);
 		BucketOperations.runIt(runAgainstS3, debugFlag);
 
-//		ObjectOperationsOnExistingBucket.runIt(runAgainstCS, debugFlag);
-//		ObjectOperationsOnExistingBucket.runIt(runAgainstS3, debugFlag);
+		ObjectOperations.runIt(runAgainstCS, debugFlag);
+		ObjectOperations.runIt(runAgainstS3, debugFlag);
 
 		StatisticOperations.runIt(debugFlag);
 

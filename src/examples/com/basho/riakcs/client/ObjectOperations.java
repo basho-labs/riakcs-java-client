@@ -21,14 +21,14 @@ import org.json.*;
 import com.basho.riakcs.client.api.*;
 
 
-public class ObjectOperationsOnExistingBucket
+public class ObjectOperations
 {
 	public static void runIt(boolean runAgainstRiakCS, boolean enableDebugOutput) throws Exception
 	{
 		RiakCSClient csClient= null;
 
-		String bucketName    = "playground-123";      // bucket has to exist, and has to be accessible by user
-		String objectKey     = "playground/testfile";
+		String bucketName    = "playground-12345";
+		String objectKey     = "testfile";
 		String outputFilename= null;
 
 		if (runAgainstRiakCS)
@@ -55,13 +55,16 @@ public class ObjectOperationsOnExistingBucket
 	{
 		JSONObject result= null;
 
+		// create bucket
+		csClient.createBucket(bucketName);
 
 		// upload object
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("Content-Type", "text/html");
 
 		Map<String, String> metadata = new HashMap<String, String>();
-		metadata.put("Description","this is just a description");
+		metadata.put("Title","see spot run");
+		metadata.put("Type","text/html");
 		
 		String webpage= "<html><body>This is a <b>Web Page</b></body></html>";
 		InputStream dataInputStream= new ByteArrayInputStream(webpage.getBytes("UTF-8"));
@@ -124,6 +127,9 @@ public class ObjectOperationsOnExistingBucket
 //		result= csClient.getObject(bucketName, "someLargeFile", new FileOutputStream("/tmp/someLargeFile.tar"));
 //		System.out.println(result.toString(2));
 //		csClient.deleteObject(bucketName, "someLargeFile");
+		
+		// delete bucket
+		csClient.deleteBucket(bucketName);
 		
 	}
 

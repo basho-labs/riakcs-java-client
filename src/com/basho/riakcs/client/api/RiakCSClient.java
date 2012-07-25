@@ -32,7 +32,8 @@ public class RiakCSClient
 	}
 
 	// Default Constructor for Amazon S3
-	
+	//
+
 	public RiakCSClient(String csAccessKey, String csSecretKey)
 	{
 		csClient= new RiakCSClientImpl(csAccessKey, csSecretKey);
@@ -44,193 +45,107 @@ public class RiakCSClient
 		csClient.enableDebugOutput();
 	}
 
-	
+
+	// User Admin APIs
+	//
+
 	public JSONObject createUser(String fullname, String emailAddress) throws RiakCSException
 	{
 		// requires CS >= 1.2
-		try
-		{
-			return csClient.createUser(fullname, emailAddress);
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		return csClient.createUser(fullname, emailAddress);			
 	}
 
 	public JSONObject listUsers() throws RiakCSException
 	{
 		// requires CS >= 1.2
-		try
-		{
-			return csClient.listUsers();
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		return csClient.listUsers();
 	}
 
-	public JSONObject retrieveMyUserInfo() throws RiakCSException
+	public JSONObject getUserInfo(String key_id) throws RiakCSException
 	{
 		// requires CS >= 1.2
-		try
-		{
-			return csClient.retrieveMyUserInfo();
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		return csClient.getUserInfo(key_id);
+	}
+
+	public JSONObject getMyUserInfo() throws RiakCSException
+	{
+		// requires CS >= 1.2
+		return csClient.getMyUserInfo();
 	}
 
 	
+	// Bucket APIs
+	//
+
 	public void createBucket(String bucketName) throws RiakCSException
 	{
-		try
-		{
-			csClient.createBucket(bucketName);
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		csClient.createBucket(bucketName);
 	}
 
 	public JSONObject listBuckets() throws RiakCSException
 	{
-		try
-		{
-			return csClient.listBuckets();
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		return csClient.listBuckets();
 	}
 
 	public boolean isBucketAccessible(String bucketName) throws RiakCSException
 	{
-		try
-		{
-			return csClient.isBucketAccessible(bucketName);
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		return csClient.isBucketAccessible(bucketName);
 	}
 	
 	public JSONObject getACLForBucket(String bucketName) throws RiakCSException
 	{
-		try
-		{
-			return csClient.getACLForBucket(bucketName);
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		return csClient.getACLForBucket(bucketName);
 	}
 
 	public void deleteBucket(String bucketName) throws RiakCSException
 	{
-		try
-		{
-			csClient.deleteBucket(bucketName);
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		csClient.deleteBucket(bucketName);
 	}
+
+	
+	// Object APIs
+	//
 
 	public void createObject(String bucketName, String objectKey, InputStream dataInputStream, Map<String, String> headers, Map<String, String> metadata) throws RiakCSException
 	{
-		try
-		{
-			csClient.createObject(bucketName, objectKey, dataInputStream, headers, metadata);
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		csClient.createObject(bucketName, objectKey, dataInputStream, headers, metadata);
 	}
 	
 	public JSONObject listObjects(String bucketName) throws RiakCSException
 	{
-		try
-		{
-			return csClient.listObjects(bucketName);
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		return csClient.listObjects(bucketName);
 	}
 	
 	public JSONObject getObject(String bucketName, String objectKey) throws RiakCSException
 	{
 		// Content gets returned as part of the JSONObject
-		try
-		{
-			return csClient.getObject(bucketName, objectKey);
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		return csClient.getObject(bucketName, objectKey);
 	}
 	
 	public JSONObject getObject(String bucketName, String objectKey, OutputStream dataOutputStream) throws RiakCSException
 	{
 		// Content gets written into outputStream
-		try
-		{
-			return csClient.getObject(bucketName, objectKey, dataOutputStream);
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		return csClient.getObject(bucketName, objectKey, dataOutputStream);
 	}
 
 	public JSONObject getObjectInfo(String bucketName, String objectKey) throws RiakCSException
 	{
-		try
-		{
-			return csClient.getObjectInfo(bucketName, objectKey);
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		return csClient.getObjectInfo(bucketName, objectKey);
 	}
 	
 	public JSONObject getACLForObject(String bucketName, String objectKey) throws RiakCSException
 	{
-		try
-		{
-			return csClient.getACLForObject(bucketName, objectKey);
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		return csClient.getACLForObject(bucketName, objectKey);
 	}
 
 	public void deleteObject(String bucketName, String objectKey) throws RiakCSException
 	{
-		try
-		{
-			csClient.deleteObject(bucketName, objectKey);
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		csClient.deleteObject(bucketName, objectKey);
 	}
 
+
+	// ACL APIs
+	//
 
 	// "Canned" ACLs for buckets and objects
     public static final String PERM_PRIVATE           = "private";
@@ -240,26 +155,12 @@ public class RiakCSClient
 
 	public void setCannedACLForBucket(String bucketName, String cannedACL) throws RiakCSException
 	{
-		try
-		{
-			csClient.setCannedACLForBucket(bucketName, cannedACL);
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		csClient.setCannedACLForBucket(bucketName, cannedACL);
 	}
 
 	public void setCannedACLForObject(String bucketName, String objectKey, String cannedACL) throws RiakCSException
 	{
-		try
-		{
-			csClient.setCannedACLForObject(bucketName, objectKey, cannedACL);
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		csClient.setCannedACLForObject(bucketName, objectKey, cannedACL);
 	}
 
 	
@@ -268,51 +169,28 @@ public class RiakCSClient
 
 	public void addAdditionalACLToBucket(String bucketName, String emailAddress, Permission permission) throws RiakCSException
 	{
-		try
-		{
-			csClient.addAdditionalACLToBucket(bucketName, emailAddress, permission);
-
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		csClient.addAdditionalACLToBucket(bucketName, emailAddress, permission);
 	}
 	
 	public void addAdditionalACLToObject(String bucketName, String objectKey, String emailAddress, Permission permission) throws RiakCSException
 	{
-		try
-		{
-			csClient.addAdditionalACLToObject(bucketName, objectKey, emailAddress, permission);
-
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		csClient.addAdditionalACLToObject(bucketName, objectKey, emailAddress, permission);
 	}
 
 
-	public JSONArray getAccessStatistic(String keyForUser, int howManyHrsBack) throws RiakCSException
+	// Statistic APIs
+	//
+
+	public JSONObject getAccessStatistic(String keyForUser, int howManyHrsBack) throws RiakCSException
 	{
-		try
-		{
-			return csClient.getAccessStatistic(keyForUser, howManyHrsBack);
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		// requires CS >= 1.2
+		return csClient.getAccessStatistic(keyForUser, howManyHrsBack);
 	}
 
-	public JSONArray getStorageStatistic(String keyForUser, int howManyHrsBack) throws RiakCSException
+	public JSONObject getStorageStatistic(String keyForUser, int howManyHrsBack) throws RiakCSException
 	{
-		try
-		{
-			return csClient.getStorageStatistic(keyForUser, howManyHrsBack);
-			
-		} catch(Exception e)
-		{
-			throw new RiakCSException(e);
-		}
+		// requires CS >= 1.2
+		return csClient.getStorageStatistic(keyForUser, howManyHrsBack);
 	}
 
 	

@@ -68,224 +68,326 @@ public class RiakCSClientImpl
 	}
 
 
-	public JSONObject createUser(String fullname, String emailAddress) throws Exception
+	public JSONObject createUser(String fullname, String emailAddress) throws RiakCSException
 	{
-		if(endpointIsS3()) throw new RiakCSException("Can't create User on AWS S3");
+		if(endpointIsS3()) throw new RiakCSException("Not Supported on AWS S3");
 
-		JSONObject postData= new JSONObject();
-		postData.put("email", emailAddress);
-		postData.put("name", fullname);
-		
-		InputStream dataInputStream= new ByteArrayInputStream(postData.toString().getBytes("UTF-8"));
+		JSONObject result= null;
 
-		Map<String, String> headers= new HashMap<String, String>();
-		headers.put("Content-Type", "application/json");
-		headers.put("Content-Length", String.valueOf(dataInputStream.available()));
-		
-		CommunicationLayer comLayer= getCommunicationLayer();
-		
-		URL url= comLayer.generateCSUrl("", "user", EMPTY_STRING_MAP);		
-		HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.POST, url, dataInputStream, headers);
-		InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
-		
-		JSONObject result= new JSONObject(new JSONTokener(inputStreamReader));
+		try {
+			JSONObject postData= new JSONObject();
+			postData.put("email", emailAddress);
+			postData.put("name", fullname);
+			
+			InputStream dataInputStream= new ByteArrayInputStream(postData.toString().getBytes("UTF-8"));
+	
+			Map<String, String> headers= new HashMap<String, String>();
+			headers.put("Content-Type", "application/json");
+			headers.put("Content-Length", String.valueOf(dataInputStream.available()));
+			
+			CommunicationLayer comLayer= getCommunicationLayer();
+			
+			URL url= comLayer.generateCSUrl("", "user", EMPTY_STRING_MAP);		
+			HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.POST, url, dataInputStream, headers);
+			InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
+			
+			result= new JSONObject(new JSONTokener(inputStreamReader));
+
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
 		
 		return result;
 	}
 
 
-	public JSONObject listUsers() throws Exception
+	public JSONObject listUsers() throws RiakCSException
 	{
-		if(endpointIsS3()) throw new RiakCSException("Can't retrieve user info from AWS S3");
+		if(endpointIsS3()) throw new RiakCSException("Not Supported on AWS S3");
 
-		Map<String, String> headers= new HashMap<String, String>();
-		headers.put("Accept", "application/json");
-
-		CommunicationLayer comLayer= getCommunicationLayer();
+		JSONObject result= null;
 		
-		URL url= comLayer.generateCSUrl("/riak-cs/users");		
-		HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, headers);
-		InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
-		
-		JSONArray userList= new JSONArray();
-
-		BufferedReader reader= new BufferedReader(inputStreamReader);
-		for (String line; (line= reader.readLine()) != null;)
-		{
-			if(line.startsWith("["))
+		try {
+			Map<String, String> headers= new HashMap<String, String>();
+			headers.put("Accept", "application/json");
+	
+			CommunicationLayer comLayer= getCommunicationLayer();
+			
+			URL url= comLayer.generateCSUrl("/riak-cs/users");		
+			HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, headers);
+			InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
+			
+			JSONArray userList= new JSONArray();
+	
+			BufferedReader reader= new BufferedReader(inputStreamReader);
+			for (String line; (line= reader.readLine()) != null;)
 			{
-				JSONArray aUserlist= new JSONArray(new JSONTokener(line));
-				for(int pt= 0; pt < aUserlist.length(); pt++)
-					userList.put(aUserlist.getJSONObject(pt));
+				if(line.startsWith("["))
+				{
+					JSONArray aUserlist= new JSONArray(new JSONTokener(line));
+					for(int pt= 0; pt < aUserlist.length(); pt++)
+						userList.put(aUserlist.getJSONObject(pt));
+				}
 			}
-		}
-		  
-		JSONObject result= new JSONObject();
-		result.put("userlist", userList);
+			  
+			result= new JSONObject();
+			result.put("userlist", userList);
 		
-		return result;
-	}
-
-
-	public JSONObject retrieveMyUserInfo() throws Exception
-	{
-		if(endpointIsS3()) throw new RiakCSException("Can't retrieve user info from AWS S3");
-
-		CommunicationLayer comLayer= getCommunicationLayer();
-		
-		URL url= comLayer.generateCSUrl("/riak-cs/user");		
-		HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url);
-		InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
-		
-		JSONObject result= new JSONObject(new JSONTokener(inputStreamReader));
-		
-		return result;
-	}
-
-
-	public void createBucket(String bucketName) throws Exception
-	{
-		CommunicationLayer comLayer= getCommunicationLayer();
-
-		URL url= comLayer.generateCSUrl(bucketName, "", EMPTY_STRING_MAP);
-		comLayer.makeCall(CommunicationLayer.HttpMethod.PUT, url);
-	}
-
-
-	public JSONObject listBuckets() throws Exception
-	{
-		CommunicationLayer comLayer= getCommunicationLayer();
-
-		URL url= comLayer.generateCSUrl("", "", EMPTY_STRING_MAP);
-		HttpURLConnection conn= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url);
-		Document xmlDoc= XMLUtils.parseToDocument(conn.getInputStream(), debugModeEnabled);
-
-		JSONObject bucketList= new JSONObject();
-
-		for (Node node : XMLUtils.xpathToNodeList("//Buckets/Bucket", xmlDoc))
+		} catch(Exception e)
 		{
-			JSONObject bucket= new JSONObject();
-			bucket.put("name", XMLUtils.xpathToContent("Name", node));
-			bucket.put("creationDate", XMLUtils.xpathToContent("CreationDate", node));
-
-			bucketList.append("bucketList", bucket);
+			throw new RiakCSException(e);
 		}
+		
+		return result;
+	}
 
-		JSONObject owner= new JSONObject();
-		owner.put("id", XMLUtils.xpathToContent("//Owner/ID", xmlDoc));
-		owner.put("displayName", XMLUtils.xpathToContent("//Owner/DisplayName", xmlDoc));
 
-		bucketList.put("owner", owner);
+	public JSONObject getUserInfo(String key_id) throws RiakCSException
+	{
+		if(endpointIsS3()) throw new RiakCSException("Not Supported on AWS S3");
 
+		JSONObject result= null;
+		
+		try {
+			Map<String, String> headers= new HashMap<String, String>();
+			headers.put("Accept", "application/json");
+
+			CommunicationLayer comLayer= getCommunicationLayer();
+			
+			URL url= comLayer.generateCSUrl("/riak-cs/user/"+key_id);		
+			HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, headers);
+			InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
+			
+			result= new JSONObject(new JSONTokener(inputStreamReader));
+		
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
+		
+		return result;
+	}
+
+	
+	public JSONObject getMyUserInfo() throws RiakCSException
+	{
+		if(endpointIsS3()) throw new RiakCSException("Not Supported on AWS S3");
+
+		JSONObject result= null;
+		
+		try {
+			Map<String, String> headers= new HashMap<String, String>();
+			headers.put("Accept", "application/json");
+
+			CommunicationLayer comLayer= getCommunicationLayer();
+			
+			URL url= comLayer.generateCSUrl("/riak-cs/user");		
+			HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, headers);
+			InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
+			
+			result= new JSONObject(new JSONTokener(inputStreamReader));
+		
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
+		
+		return result;
+	}
+
+
+	public void createBucket(String bucketName) throws RiakCSException
+	{
+		CommunicationLayer comLayer= getCommunicationLayer();
+
+		try {
+			URL url= comLayer.generateCSUrl(bucketName, "", EMPTY_STRING_MAP);
+			comLayer.makeCall(CommunicationLayer.HttpMethod.PUT, url);
+		
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
+	}
+
+
+	public JSONObject listBuckets() throws RiakCSException
+	{
+		CommunicationLayer comLayer= getCommunicationLayer();
+
+		JSONObject bucketList= null;
+		
+		try {
+			URL url= comLayer.generateCSUrl("", "", EMPTY_STRING_MAP);
+			HttpURLConnection conn= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url);
+			Document xmlDoc= XMLUtils.parseToDocument(conn.getInputStream(), debugModeEnabled);
+	
+			bucketList= new JSONObject();
+	
+			for (Node node : XMLUtils.xpathToNodeList("//Buckets/Bucket", xmlDoc))
+			{
+				JSONObject bucket= new JSONObject();
+				bucket.put("name", XMLUtils.xpathToContent("Name", node));
+				bucket.put("creationDate", XMLUtils.xpathToContent("CreationDate", node));
+	
+				bucketList.append("bucketList", bucket);
+			}
+	
+			JSONObject owner= new JSONObject();
+			owner.put("id", XMLUtils.xpathToContent("//Owner/ID", xmlDoc));
+			owner.put("displayName", XMLUtils.xpathToContent("//Owner/DisplayName", xmlDoc));
+	
+			bucketList.put("owner", owner);
+
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
+		
 		return bucketList;
 	}
     
-	public boolean isBucketAccessible(String bucketName) throws Exception
+	public boolean isBucketAccessible(String bucketName) throws RiakCSException
 	{
 		boolean result= false;
 
-		CommunicationLayer comLayer= getCommunicationLayer();
-
-		URL url= comLayer.generateCSUrl(bucketName, "", EMPTY_STRING_MAP);
-		HttpURLConnection conn= comLayer.makeCall(CommunicationLayer.HttpMethod.HEAD, url);
-		
-		for (String headerName : conn.getHeaderFields().keySet())
+		try {
+			CommunicationLayer comLayer= getCommunicationLayer();
+	
+			URL url= comLayer.generateCSUrl(bucketName, "", EMPTY_STRING_MAP);
+			HttpURLConnection conn= comLayer.makeCall(CommunicationLayer.HttpMethod.HEAD, url);
+			
+			for (String headerName : conn.getHeaderFields().keySet())
+			{
+				// .. just check for something ..
+				if(headerName != null && headerName.equals("Server"))
+					result= true;
+			}
+			
+		} catch(Exception e)
 		{
-			// .. just check for something ..
-			if(headerName != null && headerName.equals("Server"))
-				result= true;
+			throw new RiakCSException(e);
 		}
-		
+	
 		return result;
 	}
 
-	public void deleteBucket(String bucketName) throws Exception
+	public void deleteBucket(String bucketName) throws RiakCSException
 	{
-		CommunicationLayer comLayer= getCommunicationLayer();
-
-		URL url= comLayer.generateCSUrl(bucketName, "", EMPTY_STRING_MAP);
-		comLayer.makeCall(CommunicationLayer.HttpMethod.DELETE, url);
+		try {
+			CommunicationLayer comLayer= getCommunicationLayer();
+	
+			URL url= comLayer.generateCSUrl(bucketName, "", EMPTY_STRING_MAP);
+			comLayer.makeCall(CommunicationLayer.HttpMethod.DELETE, url);
+			
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
 	}
 
 
-	public void createObject(String bucketName, String objectKey, InputStream dataInputStream, Map<String, String> headers, Map<String, String> metadata) throws Exception
+	public void createObject(String bucketName, String objectKey, InputStream dataInputStream, Map<String, String> headers, Map<String, String> metadata) throws RiakCSException
 	{
 		createObject(bucketName, objectKey, dataInputStream, headers, metadata, null);
 	}
 
 	
-	public void createObject(String bucketName, String objectKey, InputStream dataInputStream, Map<String, String> headers, Map<String, String> metadata, String policy) throws Exception
+	public void createObject(String bucketName, String objectKey, InputStream dataInputStream, Map<String, String> headers, Map<String, String> metadata, String policy) throws RiakCSException
 	{
-		if (headers == null)  headers= new HashMap<String, String>();
-		
-		if (!headers.containsKey("Content-Length")) headers.put("Content-Length", String.valueOf(dataInputStream.available()));
-		if (!headers.containsKey("Content-Type"))   headers.put("Content-Type", "application/octet-stream");
-
-		// Add user-meta info
-		if (metadata != null)
-		{
-			for (Map.Entry<String, String> metadataHeader : metadata.entrySet())
+		try {
+			if (headers == null)  headers= new HashMap<String, String>();
+			
+			if (!headers.containsKey("Content-Length")) headers.put("Content-Length", String.valueOf(dataInputStream.available()));
+			if (!headers.containsKey("Content-Type"))   headers.put("Content-Type", "application/octet-stream");
+	
+			// Add user-meta info
+			if (metadata != null)
 			{
-				headers.put("x-amz-meta-" + metadataHeader.getKey(), metadataHeader.getValue());
+				for (Map.Entry<String, String> metadataHeader : metadata.entrySet())
+				{
+					headers.put("x-amz-meta-" + metadataHeader.getKey(), metadataHeader.getValue());
+				}
 			}
+	
+			CommunicationLayer comLayer= getCommunicationLayer();
+			
+			URL url= comLayer.generateCSUrl(bucketName, objectKey, EMPTY_STRING_MAP);
+			comLayer.makeCall(CommunicationLayer.HttpMethod.PUT, url, dataInputStream, headers);
+			
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
 		}
-
-		CommunicationLayer comLayer= getCommunicationLayer();
-		
-		URL url= comLayer.generateCSUrl(bucketName, objectKey, EMPTY_STRING_MAP);
-		comLayer.makeCall(CommunicationLayer.HttpMethod.PUT, url, dataInputStream, headers);
 	}
 
 	
-	public JSONObject getObject(String bucketName, String objectKey) throws Exception
+	public JSONObject getObject(String bucketName, String objectKey) throws RiakCSException
 	{
 		return getObject(bucketName, objectKey, null);
 	}
 
-	public JSONObject getObject(String bucketName, String objectKey, OutputStream dataOutputStream) throws Exception
+	public JSONObject getObject(String bucketName, String objectKey, OutputStream dataOutputStream) throws RiakCSException
 	{
-		CommunicationLayer comLayer= getCommunicationLayer();
+		JSONObject object= null;
 		
-		URL url= comLayer.generateCSUrl(bucketName, objectKey, EMPTY_STRING_MAP);
-		HttpURLConnection conn= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, EMPTY_STRING_MAP);
-
-		JSONObject object= extractMetaInfoForObject(objectKey, conn);
-
-		// Download data
-		if (dataOutputStream != null)
-		{
-			InputStream inputStream= conn.getInputStream();
-			byte[] buffer= new byte[8192];
-			int count= -1;
-			while ((count= inputStream.read(buffer)) != -1)
+		try {
+			CommunicationLayer comLayer= getCommunicationLayer();
+			
+			URL url= comLayer.generateCSUrl(bucketName, objectKey, EMPTY_STRING_MAP);
+			HttpURLConnection conn= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, EMPTY_STRING_MAP);
+	
+			object= extractMetaInfoForObject(objectKey, conn);
+	
+			// Download data
+			if (dataOutputStream != null)
 			{
-				dataOutputStream.write(buffer, 0, count);
+				InputStream inputStream= conn.getInputStream();
+				byte[] buffer= new byte[8192];
+				int count= -1;
+				while ((count= inputStream.read(buffer)) != -1)
+				{
+					dataOutputStream.write(buffer, 0, count);
+				}
+				dataOutputStream.close();
+				inputStream.close();
+			} else
+			{
+				object.put("body", getInputStreamAsString(conn.getInputStream()));
 			}
-			dataOutputStream.close();
-			inputStream.close();
-		} else
+		
+		} catch(Exception e)
 		{
-			object.put("body", getInputStreamAsString(conn.getInputStream()));
+			throw new RiakCSException(e);
+		}
+		
+		return object;
+	}
+
+
+	public JSONObject getObjectInfo(String bucketName, String objectKey) throws RiakCSException
+	{
+		JSONObject object= null;
+		
+		try {
+			CommunicationLayer comLayer= getCommunicationLayer();
+			
+			URL url= comLayer.generateCSUrl(bucketName, objectKey, EMPTY_STRING_MAP);
+			HttpURLConnection conn= comLayer.makeCall(CommunicationLayer.HttpMethod.HEAD, url, null, EMPTY_STRING_MAP);
+	
+			object= extractMetaInfoForObject(objectKey, conn);
+		
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
 		}
 
 		return object;
 	}
 
 
-	public JSONObject getObjectInfo(String bucketName, String objectKey) throws Exception
-	{
-		CommunicationLayer comLayer= getCommunicationLayer();
-		
-		URL url= comLayer.generateCSUrl(bucketName, objectKey, EMPTY_STRING_MAP);
-		HttpURLConnection conn= comLayer.makeCall(CommunicationLayer.HttpMethod.HEAD, url, null, EMPTY_STRING_MAP);
-
-		JSONObject object= extractMetaInfoForObject(objectKey, conn);
-
-		return object;
-	}
-
-
-	private JSONObject extractMetaInfoForObject(String objectKey, HttpURLConnection conn) throws JSONException
+	private JSONObject extractMetaInfoForObject(String objectKey, HttpURLConnection conn) throws JSONException 
 	{
 		Map<String, String> responseHeaders= new HashMap<String, String>();
 		JSONObject metadata= new JSONObject();
@@ -313,123 +415,155 @@ public class RiakCSClientImpl
 	}
 
 
-	public JSONObject listObjects(String bucketName) throws Exception
+	public JSONObject listObjects(String bucketName) throws RiakCSException
 	{
+		//TO DO .. verify/implement handling of truncated lists
 		JSONObject result= new JSONObject();
-		result.put("bucketName", bucketName);
 		
-		boolean isTruncated= true;
-		while (isTruncated)
-		{
-			CommunicationLayer comLayer= getCommunicationLayer();
+		try {
+			result.put("bucketName", bucketName);
 			
-			URL url= comLayer.generateCSUrl(bucketName, "", EMPTY_STRING_MAP);
-			HttpURLConnection conn= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url);
-			
-			Document xmlDoc= XMLUtils.parseToDocument(conn.getInputStream(), debugModeEnabled);
-			List<Node> nodeList= XMLUtils.xpathToNodeList("//Contents", xmlDoc);
-			for (Node node : nodeList)
+			boolean isTruncated= true;
+			while (isTruncated)
 			{
-				JSONObject object = new JSONObject();
-				object.put("key", XMLUtils.xpathToContent("Key", node));
-				object.put("size", XMLUtils.xpathToContent("Size", node));
-				object.put("lastModified", XMLUtils.xpathToContent("LastModified", node));
-				object.put("etag", XMLUtils.xpathToContent("ETag", node));
+				CommunicationLayer comLayer= getCommunicationLayer();
 				
-				JSONObject owner= new JSONObject();
-				owner.put("id", XMLUtils.xpathToContent("Owner/ID", node));
-				owner.put("displayName", XMLUtils.xpathToContent("Owner/DisplayName", node));
-				object.put("owner", owner);
-			
-				result.append("objectList", object);
+				URL url= comLayer.generateCSUrl(bucketName, "", EMPTY_STRING_MAP);
+				HttpURLConnection conn= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url);
+				
+				Document xmlDoc= XMLUtils.parseToDocument(conn.getInputStream(), debugModeEnabled);
+				List<Node> nodeList= XMLUtils.xpathToNodeList("//Contents", xmlDoc);
+				for (Node node : nodeList)
+				{
+					JSONObject object = new JSONObject();
+					object.put("key", XMLUtils.xpathToContent("Key", node));
+					object.put("size", XMLUtils.xpathToContent("Size", node));
+					object.put("lastModified", XMLUtils.xpathToContent("LastModified", node));
+					object.put("etag", XMLUtils.xpathToContent("ETag", node));
+					
+					JSONObject owner= new JSONObject();
+					owner.put("id", XMLUtils.xpathToContent("Owner/ID", node));
+					owner.put("displayName", XMLUtils.xpathToContent("Owner/DisplayName", node));
+					object.put("owner", owner);
+				
+					result.append("objectList", object);
+				}
+	
+	//			for (Node node : xpathToNodeList("//CommonPrefixes", xmlDoc))
+	//			{
+	//				objectList.prefixes.add(node.getTextContent());
+	//			}
+	            
+				// Determine whether listing is truncated
+				isTruncated= "true".equals(XMLUtils.xpathToContent("//IsTruncated", xmlDoc));
+				
+				// Set the marker parameter to the NextMarker if possible,
+				// otherwise set it to the last key name in the listing
+	//			if (xpathToContent("//NextMarker", xmlDoc) != null)
+	//			{
+	//				parameters.put("marker", xpathToContent("//NextMarker", xmlDoc));
+	//			} else if (xpathToContent("//Contents/Key", xmlDoc) != null) {
+	//				// Java's XPath implementation doesn't support the 'last()'
+	//				// function, so we must manually find the last Key node.
+	//				List<Node> keys = xpathToNodeList("//Contents/Key", xmlDoc);
+	//				Node lastNode = keys.get(keys.size() - 1);
+	//				parameters.put("marker", lastNode.getTextContent());
+	//			} else {
+	//				parameters.put("marker", "");
+	//			}
 			}
 
-//			for (Node node : xpathToNodeList("//CommonPrefixes", xmlDoc))
-//			{
-//				objectList.prefixes.add(node.getTextContent());
-//			}
-            
-			// Determine whether listing is truncated
-			isTruncated= "true".equals(XMLUtils.xpathToContent("//IsTruncated", xmlDoc));
-			
-			// Set the marker parameter to the NextMarker if possible,
-			// otherwise set it to the last key name in the listing
-//			if (xpathToContent("//NextMarker", xmlDoc) != null)
-//			{
-//				parameters.put("marker", xpathToContent("//NextMarker", xmlDoc));
-//			} else if (xpathToContent("//Contents/Key", xmlDoc) != null) {
-//				// Java's XPath implementation doesn't support the 'last()'
-//				// function, so we must manually find the last Key node.
-//				List<Node> keys = xpathToNodeList("//Contents/Key", xmlDoc);
-//				Node lastNode = keys.get(keys.size() - 1);
-//				parameters.put("marker", lastNode.getTextContent());
-//			} else {
-//				parameters.put("marker", "");
-//			}
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
 		}
-
+		
 		return result;
 	}
 
-	public void deleteObject(String bucketName, String objectKey) throws Exception
+	public void deleteObject(String bucketName, String objectKey) throws RiakCSException
 	{
-		CommunicationLayer comLayer= getCommunicationLayer();
-		
-        URL url= comLayer.generateCSUrl(bucketName, objectKey, EMPTY_STRING_MAP);
-        comLayer.makeCall(CommunicationLayer.HttpMethod.DELETE, url);
+		try {
+			CommunicationLayer comLayer= getCommunicationLayer();
+			
+	        URL url= comLayer.generateCSUrl(bucketName, objectKey, EMPTY_STRING_MAP);
+	        comLayer.makeCall(CommunicationLayer.HttpMethod.DELETE, url);
+
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
 	}
 
-	public void setCannedACLForBucket(String bucketName, String cannedAcl) throws Exception
+	public void setCannedACLForBucket(String bucketName, String cannedAcl) throws RiakCSException
 	{
 		setCannedACLImplt(bucketName, "", cannedAcl);
 	}
 
-	public void setCannedACLForObject(String bucketName, String objectKey, String cannedAcl) throws Exception
+	public void setCannedACLForObject(String bucketName, String objectKey, String cannedAcl) throws RiakCSException
 	{
 		setCannedACLImplt(bucketName, objectKey, cannedAcl);
 	}
 
-	public void setCannedACLImplt(String bucketName, String objectKey, String cannedAcl) throws Exception
+	public void setCannedACLImplt(String bucketName, String objectKey, String cannedAcl) throws RiakCSException
 	{
-		CommunicationLayer comLayer= getCommunicationLayer();
+		try {
+			CommunicationLayer comLayer= getCommunicationLayer();
+	
+			Map<String, String> parameters= new HashMap<String, String>();
+			parameters.put("acl", null);
+			URL url= comLayer.generateCSUrl(bucketName, objectKey, parameters);
+	
+			Map<String, String> headers= new HashMap<String, String>();
+			headers.put("x-amz-acl", cannedAcl);
+			comLayer.makeCall(CommunicationLayer.HttpMethod.PUT, url, null, headers);
 
-		Map<String, String> parameters= new HashMap<String, String>();
-		parameters.put("acl", null);
-		URL url= comLayer.generateCSUrl(bucketName, objectKey, parameters);
-
-		Map<String, String> headers= new HashMap<String, String>();
-		headers.put("x-amz-acl", cannedAcl);
-		comLayer.makeCall(CommunicationLayer.HttpMethod.PUT, url, null, headers);
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
 	}
 
-	public void addAdditionalACLToBucket(String bucketName, String emailAddress, Permission permission) throws Exception
+	public void addAdditionalACLToBucket(String bucketName, String emailAddress, Permission permission) throws RiakCSException
 	{
-		JSONObject oldACL= getACLForBucket(bucketName);
-		
-		JSONObject newGrant= new JSONObject();
-		JSONObject grantee= new JSONObject();
-		grantee.put("emailAddress", emailAddress);
-		newGrant.put("grantee", grantee);
-		newGrant.put("permission", permission);
+		try {
+			JSONObject oldACL= getACLForBucket(bucketName);
+			
+			JSONObject newGrant= new JSONObject();
+			JSONObject grantee= new JSONObject();
+			grantee.put("emailAddress", emailAddress);
+			newGrant.put("grantee", grantee);
+			newGrant.put("permission", permission);
+	
+			oldACL.append("grantsList", newGrant);
+	
+			addAdditionalACLImpl(bucketName, "", oldACL);
 
-		oldACL.append("grantsList", newGrant);
-
-		addAdditionalACLImpl(bucketName, "", oldACL);
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
 	}
 
-	public void addAdditionalACLToObject(String bucketName, String objectKey, String emailAddress, Permission permission) throws Exception
+	public void addAdditionalACLToObject(String bucketName, String objectKey, String emailAddress, Permission permission) throws RiakCSException
 	{
-		JSONObject oldACL= getACLForObject(bucketName, objectKey);
-		
-		JSONObject newGrant= new JSONObject();
-		JSONObject grantee= new JSONObject();
-		grantee.put("emailAddress", emailAddress);
-		newGrant.put("grantee", grantee);
-		newGrant.put("permission", permission);
+		try {
+			JSONObject oldACL= getACLForObject(bucketName, objectKey);
+			
+			JSONObject newGrant= new JSONObject();
+			JSONObject grantee= new JSONObject();
+			grantee.put("emailAddress", emailAddress);
+			newGrant.put("grantee", grantee);
+			newGrant.put("permission", permission);
+	
+			oldACL.append("grantsList", newGrant);
+	
+			addAdditionalACLImpl(bucketName, objectKey, oldACL);
 
-		oldACL.append("grantsList", newGrant);
-
-		addAdditionalACLImpl(bucketName, objectKey, oldACL);
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
 	}
 	
 	private void addAdditionalACLImpl(String bucketName, String objectKey, JSONObject acl) throws Exception
@@ -480,14 +614,34 @@ public class RiakCSClientImpl
         comLayer.makeCall(CommunicationLayer.HttpMethod.PUT, url, dataInputStream, headers);
 	}
 
-	public JSONObject getACLForBucket(String bucketName) throws Exception
+	public JSONObject getACLForBucket(String bucketName) throws RiakCSException
 	{
-		return getAclImpl(bucketName, "");
+		JSONObject result= null;
+		
+		try {
+			result= getAclImpl(bucketName, "");
+
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
+		
+		return result;
 	}
 
-	public JSONObject getACLForObject(String bucketName, String objectKey) throws Exception
+	public JSONObject getACLForObject(String bucketName, String objectKey) throws RiakCSException
 	{
-		return getAclImpl(bucketName, objectKey);
+		JSONObject result= null;
+		
+		try {
+			result= getAclImpl(bucketName, objectKey);
+			
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
+		
+		return result;
 	}
 
 	private JSONObject getAclImpl(String bucketName, String objectKey) throws Exception
@@ -532,64 +686,82 @@ public class RiakCSClientImpl
 		return acl;
 	}
 
-	public JSONArray getAccessStatistic(String keyForUser, int howManyHrsBack) throws Exception
+	public JSONObject getAccessStatistic(String keyForUser, int howManyHrsBack) throws RiakCSException
 	{		
 		if(endpointIsS3()) throw new RiakCSException("Not supported by AWS S3");
 
-		iso8601DateFormat.setTimeZone(new SimpleTimeZone(0, "GMT"));
+		JSONObject result= null;
 		
-		Date endTime  = new Date(System.currentTimeMillis());
-		Date startTime= new Date(System.currentTimeMillis()-(howManyHrsBack*60*60*1000));
+		try {
+			iso8601DateFormat.setTimeZone(new SimpleTimeZone(0, "GMT"));
+			
+			Date endTime  = new Date(System.currentTimeMillis());
+			Date startTime= new Date(System.currentTimeMillis()-(howManyHrsBack*60*60*1000));
+	
+			StringBuffer path= new StringBuffer();
+			path.append("/usage");
+			path.append("/");
+			path.append(keyForUser);
+			path.append("/aj");
+			path.append("/");
+			path.append(iso8601DateFormat.format(startTime));
+			path.append("/");
+			path.append(iso8601DateFormat.format(endTime));
+	
+			CommunicationLayer comLayer= getCommunicationLayer();
+	
+			URL url= comLayer.generateCSUrl(path.toString());
+			HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, EMPTY_STRING_MAP);
+	
+			InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
+			result= new JSONObject(new JSONTokener(inputStreamReader));
+			result= result.getJSONObject("Access");
 
-		StringBuffer path= new StringBuffer();
-		path.append("/usage");
-		path.append("/");
-		path.append(keyForUser);
-		path.append("/aj");
-		path.append("/");
-		path.append(iso8601DateFormat.format(startTime));
-		path.append("/");
-		path.append(iso8601DateFormat.format(endTime));
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
 
-		CommunicationLayer comLayer= getCommunicationLayer();
-
-		URL url= comLayer.generateCSUrl(path.toString());
-		HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, EMPTY_STRING_MAP);
-
-		InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
-		JSONObject result= new JSONObject(new JSONTokener(inputStreamReader));
-
-		return result.getJSONArray("Access");
+		return result;
 	}
 
-	public JSONArray getStorageStatistic(String keyForUser, int howManyHrsBack) throws Exception
+	public JSONObject getStorageStatistic(String keyForUser, int howManyHrsBack) throws RiakCSException
 	{
 		if(endpointIsS3()) throw new RiakCSException("Not supported by AWS S3");
 
-		iso8601DateFormat.setTimeZone(new SimpleTimeZone(0, "GMT"));
+		JSONObject result= null;
 		
-		Date endTime  = new Date(System.currentTimeMillis());
-		Date startTime= new Date(System.currentTimeMillis()-(howManyHrsBack*60*60*1000));
+		try {
+			iso8601DateFormat.setTimeZone(new SimpleTimeZone(0, "GMT"));
+			
+			Date endTime  = new Date(System.currentTimeMillis());
+			Date startTime= new Date(System.currentTimeMillis()-(howManyHrsBack*60*60*1000));
+	
+			StringBuffer path= new StringBuffer();
+			path.append("/usage");
+			path.append("/");
+			path.append(keyForUser);
+			path.append("/bj");
+			path.append("/");
+			path.append(iso8601DateFormat.format(startTime));
+			path.append("/");
+			path.append(iso8601DateFormat.format(endTime));
+	
+			CommunicationLayer comLayer= getCommunicationLayer();
+	
+			URL url= comLayer.generateCSUrl(path.toString());
+			HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, EMPTY_STRING_MAP);
+	
+			InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
+			result= new JSONObject(new JSONTokener(inputStreamReader));
+			result= result.getJSONObject("Storage");
 
-		StringBuffer path= new StringBuffer();
-		path.append("/usage");
-		path.append("/");
-		path.append(keyForUser);
-		path.append("/bj");
-		path.append("/");
-		path.append(iso8601DateFormat.format(startTime));
-		path.append("/");
-		path.append(iso8601DateFormat.format(endTime));
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
 
-		CommunicationLayer comLayer= getCommunicationLayer();
-
-		URL url= comLayer.generateCSUrl(path.toString());
-		HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, EMPTY_STRING_MAP);
-
-		InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
-		JSONObject result= new JSONObject(new JSONTokener(inputStreamReader));
-
-		return result.getJSONArray("Storage");
+		return result;
 	}
 
 
@@ -614,7 +786,6 @@ public class RiakCSClientImpl
 
 		return responseBody.toString();
 	}
-
 
 
 }

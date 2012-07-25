@@ -26,19 +26,19 @@ public class StatisticOperations
 		RiakCSClient csClient= new RiakCSClient(csCredentials.getCSAccessKey(), csCredentials.getsCSSecretKey(), csCredentials.getCSEndPoint(), false);
 		if (enableDebugOutput) csClient.enableDebugOutput();
 
-		JSONArray result= null;
+		JSONObject accessStats= null;
 
 		// get access stats
 		int lastTwelveHrs= 12;
-		result= csClient.getAccessStatistic(csCredentials.getCSAccessKey(), lastTwelveHrs);
+		accessStats= csClient.getAccessStatistic(csCredentials.getCSAccessKey(), lastTwelveHrs);
 		
-		System.out.println(result.toString(2));
+		System.out.println(accessStats.toString(2));
 		
 		// get storage stats
 		int lastTwentyFourHrs= 24;
-		result= csClient.getStorageStatistic(csCredentials.getCSAccessKey(), lastTwentyFourHrs);
+		JSONObject storageStats= csClient.getStorageStatistic(csCredentials.getCSAccessKey(), lastTwentyFourHrs);
 		
-		System.out.println(result.toString(2));
+		System.out.println(storageStats.toString(2));
 		
 	}
 
