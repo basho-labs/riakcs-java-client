@@ -33,8 +33,8 @@ public class UserOperations
 //		result= csClient.getUserInfo(key_id);
 //		System.out.println(result.toString(2));
 		
-//		JSONObject userInfo= csClient.getMyUserInfo();
-//		System.out.println(userInfo.toString(2));
+		JSONObject userInfo= csClient.getMyUserInfo();
+		System.out.println(userInfo.toString(2));
 
 //		JSONObject userInfo= csClient.getUserInfo("YT3FHHROU6I88JHIX9C3"); // use key_id from existing user
 //		System.out.println(userInfo.toString(2));
