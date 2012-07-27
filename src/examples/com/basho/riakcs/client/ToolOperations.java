@@ -13,20 +13,41 @@
  */
 package examples.com.basho.riakcs.client;
 
+import java.io.*;
+
 import com.basho.riakcs.client.api.*;
 
 public class ToolOperations
 {
-	public static void runIt(boolean enableDebugOutput) throws Exception
+	public static void runIt(boolean runAgainstRiakCS, boolean enableDebugOutput) throws Exception
 	{
-		CSCredentials csCredentials= new CSCredentials(CSCredentials.class.getResourceAsStream("CSCredentials.Riak.properties"));			
+		RiakCSClient csClient= null;
 
-		RiakCSClient csClient= new RiakCSClient(csCredentials.getCSAccessKey(), csCredentials.getsCSSecretKey(), csCredentials.getCSEndPoint(), false);
+		if (runAgainstRiakCS)
+		{
+			CSCredentials csCredentials= new CSCredentials(CSCredentials.class.getResourceAsStream("CSCredentials.Riak.properties"));			
+			csClient= new RiakCSClient(csCredentials.getCSAccessKey(), csCredentials.getsCSSecretKey(), csCredentials.getCSEndPoint(), false);
+
+		} else {
+			CSCredentials s3Credentials= new CSCredentials(CSCredentials.class.getResourceAsStream("CSCredentials.AWS.properties"));
+			csClient= new RiakCSClient(s3Credentials.getCSAccessKey(), s3Credentials.getsCSSecretKey());
+			
+		}
+
 		if (enableDebugOutput) csClient.enableDebugOutput();
 
+		runItImpl(csClient);
+	}
+	
+	private static void runItImpl(RiakCSClient csClient) throws Exception
+	{
 		// delete bucket plus all of its content
-//		csClient.removeBucketAndContent("test_bench");
+		csClient.removeBucketAndContent("basho_bench_10");
 
+		// upload folder/file structure
+//		long startTime= System.currentTimeMillis();		
+//		csClient.uploadContentOfDirectory(new File("/Users/Shared/playground/riak-1.1.1"), "riak_1.1.1");
+//		System.out.println("Upload time in seconds: " + (Math.abs(System.currentTimeMillis() - startTime)/1000));
 	}
 
 }

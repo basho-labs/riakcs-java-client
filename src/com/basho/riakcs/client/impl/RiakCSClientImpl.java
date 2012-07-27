@@ -251,13 +251,15 @@ public class RiakCSClientImpl
 	public boolean isBucketAccessible(String bucketName) throws RiakCSException
 	{
 		boolean result= false;
+		
+		HttpURLConnection conn= null;
 
 		try {
 			CommunicationLayer comLayer= getCommunicationLayer();
 	
 			URL url= comLayer.generateCSUrl(bucketName, "", EMPTY_STRING_MAP);
-			HttpURLConnection conn= comLayer.makeCall(CommunicationLayer.HttpMethod.HEAD, url);
-			
+			conn= comLayer.makeCall(CommunicationLayer.HttpMethod.HEAD, url);
+
 			for (String headerName : conn.getHeaderFields().keySet())
 			{
 				// .. just check for something ..
@@ -267,6 +269,9 @@ public class RiakCSClientImpl
 			
 		} catch(Exception e)
 		{
+			if(e.getMessage().contains("404")) return false;
+			if(e.getMessage().contains("403")) return false;
+
 			throw new RiakCSException(e);
 		}
 	
@@ -754,15 +759,15 @@ public class RiakCSClientImpl
 	}
 
 
-	public void removeBucketAndContent(String bucketName) throws RiakCSException
+	public void removeContentOfBucket(String bucketName) throws RiakCSException
 	{
-		// prototyping .. work in progress
 		try
 		{
 			JSONObject response= listObjects(bucketName, false);
 			JSONArray resultList= response.getJSONArray("objectList");
 
-			if (debugModeEnabled) System.out.println("Number of Objects to delete: "+ resultList.length() + "\n");
+//			if (debugModeEnabled) System.out.println("Number of Objects to delete: "+ resultList.length() + "\n");
+			System.out.println("Number of Objects to delete: "+ resultList.length() + "\n");
 
 			for(int pt=0; pt < resultList.length(); pt++)
 			{
@@ -770,14 +775,70 @@ public class RiakCSClientImpl
 				deleteObject(bucketName, key);
 			}
 
-			deleteBucket(bucketName);
-
 		} catch(JSONException e)
 		{
 			throw new RiakCSException(e);
 		}
 	
 		
+	}
+
+
+	public void uploadContentOfDirectory(File fromDirectory, String toBucket) throws RiakCSException
+	{
+		Set<String> objectNames= new HashSet<String>();
+
+		try {
+			uploadContentOfDirectoryImpl(fromDirectory, toBucket, "", objectNames);
+			System.out.println("Number of Objects uploaded: " + objectNames.size());
+
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
+	}
+
+	private void uploadContentOfDirectoryImpl(File fromDirectory, String toBucket, String subFolderPath, Set<String> objectNames) throws Exception
+	{
+		if (fromDirectory.isDirectory() == false) throw new RiakCSException(fromDirectory + " is not a valid directory");
+		
+		File[] folderContent= fromDirectory.listFiles();
+
+		for(File item : folderContent)
+		{
+			if(item.isHidden()) continue;
+
+			if(item.isDirectory())
+			{
+				uploadContentOfDirectoryImpl(item, toBucket, subFolderPath+fixName(item.getName())+'/', objectNames);
+			} else {
+				String objectName= subFolderPath+fixName(item.getName());
+				
+				if(objectNames.contains(objectName)) throw new RiakCSException("ObjectName/Key conflict: " + objectName);
+				objectNames.add(objectName);
+
+				FileInputStream inputStream= new FileInputStream(item);
+				createObject(toBucket, objectName, inputStream, null, null);
+			}
+		}
+
+	}
+
+	private String fixName(String name) throws RiakCSException
+	{
+		//There are certain naming restrictions for S3 objects
+		StringBuffer result= new StringBuffer();
+
+		for(int pt= 0; pt < name.length(); pt++)
+		{
+			char chr= name.charAt(pt);
+			if(Character.isLetter(chr) || Character.isDigit(chr) || chr == '.' || chr == '-' || chr == '_' || chr == '/')
+				result.append(chr);
+		}
+
+		if(result.length() == 0) throw new RiakCSException("Funny name: " + name);
+		
+		return result.toString();
 	}
 
 
@@ -801,6 +862,7 @@ public class RiakCSClientImpl
 
 		return responseBody.toString();
 	}
+
 
 
 }

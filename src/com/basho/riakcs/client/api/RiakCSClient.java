@@ -202,12 +202,23 @@ public class RiakCSClient
 	
 
 	// Tool APIs
+	//
+	
 	public void removeBucketAndContent(String bucketName) throws RiakCSException
 	{
-		// work in progress, not fully tested
-		csClient.removeBucketAndContent(bucketName);
+		csClient.removeContentOfBucket(bucketName);
+		csClient.deleteBucket(bucketName);
 	}
 
+	public void uploadContentOfDirectory(File fromDirectory, String toBucket) throws RiakCSException
+	{
+		if(csClient.isBucketAccessible(toBucket)) throw new RiakCSException("Bucket already exists, choose different bucket name");
+
+		csClient.createBucket(toBucket);
+		csClient.uploadContentOfDirectory(fromDirectory, toBucket);
+	}
+	
+	
 	private RiakCSClientImpl csClient= null;
 
 }

@@ -23,8 +23,8 @@ public class Playground
 
 	public static void main(String[] args) throws Exception
 	{
-//		boolean debugFlag= debugDisabled;
-		boolean debugFlag= debugEnabled;
+		boolean debugFlag= debugDisabled;
+//		boolean debugFlag= debugEnabled;
 
 		UserOperations.runIt(debugFlag);
 
@@ -34,10 +34,11 @@ public class Playground
 		ObjectOperations.runIt(runAgainstCS, debugFlag);
 		ObjectOperations.runIt(runAgainstS3, debugFlag);
 
+		ToolOperations.runIt(runAgainstCS, debugFlag);
+		ToolOperations.runIt(runAgainstS3, debugFlag);
+
 		StatisticOperations.runIt(debugFlag);
 		
-//		ToolOperations.runIt(debugFlag);
-
 	}
 
 }
