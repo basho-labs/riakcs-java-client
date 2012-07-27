@@ -42,7 +42,7 @@ public class ToolOperations
 	private static void runItImpl(RiakCSClient csClient) throws Exception
 	{
 		// delete bucket plus all of its content
-		csClient.removeBucketAndContent("basho_bench_10");
+//		csClient.removeBucketAndContent("basho_bench");
 
 		// upload folder/file structure
 //		long startTime= System.currentTimeMillis();		

@@ -252,13 +252,11 @@ public class RiakCSClientImpl
 	{
 		boolean result= false;
 		
-		HttpURLConnection conn= null;
-
 		try {
 			CommunicationLayer comLayer= getCommunicationLayer();
 	
 			URL url= comLayer.generateCSUrl(bucketName, "", EMPTY_STRING_MAP);
-			conn= comLayer.makeCall(CommunicationLayer.HttpMethod.HEAD, url);
+			HttpURLConnection conn= comLayer.makeCall(CommunicationLayer.HttpMethod.HEAD, url);
 
 			for (String headerName : conn.getHeaderFields().keySet())
 			{
