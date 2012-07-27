@@ -866,7 +866,7 @@ public class RiakCSClientImpl
 				headers.put("Content-Type", objectData.getString("contenttype"));
 
 				Map<String, String> metadata= null;
-				if (objectData.has("metadata"))
+				if (objectData.has("metadata") && objectData.getJSONObject("metadata").length() > 0)
 				{
 					metadata= new HashMap<String, String>();
 
