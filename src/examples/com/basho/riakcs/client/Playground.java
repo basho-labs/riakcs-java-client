@@ -37,8 +37,10 @@ public class Playground
 		ToolOperations.runIt(runAgainstCS, debugFlag);
 		ToolOperations.runIt(runAgainstS3, debugFlag);
 
+		CopyOperations.runIt(debugFlag);
+
 		StatisticOperations.runIt(debugFlag);
-		
+	
 	}
 
 }

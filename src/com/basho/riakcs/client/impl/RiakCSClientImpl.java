@@ -413,6 +413,7 @@ public class RiakCSClientImpl
 		object.put("etag", responseHeaders.get("ETag"));
 		object.put("lastModified", responseHeaders.get("Last-Modified"));
 		object.put("size", responseHeaders.get("Content-Length"));
+		object.put("contenttype", responseHeaders.get("Content-Type"));
 		object.put("metadata", metadata);
 		return object;
 	}
@@ -817,6 +818,7 @@ public class RiakCSClientImpl
 
 				FileInputStream inputStream= new FileInputStream(item);
 				createObject(toBucket, objectName, inputStream, null, null);
+				inputStream.close();
 			}
 		}
 
@@ -837,6 +839,57 @@ public class RiakCSClientImpl
 		if(result.length() == 0) throw new RiakCSException("Funny name: " + name);
 		
 		return result.toString();
+	}
+
+
+	public static void copyBucketBetweenSystems(RiakCSClient fromSystem, String fromBucket, RiakCSClient toSystem, String toBucket) throws RiakCSException
+	{
+		try
+		{
+			JSONObject response= fromSystem.listObjectNames(fromBucket);
+			JSONArray resultList= response.getJSONArray("objectList");
+	
+			System.out.println("Number of Objects to transfer: "+ resultList.length() + "\n");
+			
+			for(int pt=0; pt < resultList.length(); pt++)
+			{
+				String key= resultList.getJSONObject(pt).getString("key");
+				File tempFile= File.createTempFile("cscopy-", ".bin");
+				
+				//Retrieve Object
+				FileOutputStream outputStream= new FileOutputStream(tempFile);
+				JSONObject objectData= fromSystem.getObject(fromBucket, key, outputStream);
+				outputStream.close();
+
+				//Upload Object
+				Map<String, String> headers = new HashMap<String, String>();
+				headers.put("Content-Type", objectData.getString("contenttype"));
+
+				Map<String, String> metadata= null;
+				if (objectData.has("metadata"))
+				{
+					metadata= new HashMap<String, String>();
+
+					JSONObject metadataRaw= objectData.getJSONObject("metadata");
+					String[] metaKeys= JSONObject.getNames(metadataRaw);
+					for(String metaKey : metaKeys)
+					{
+						metadata.put(metaKey, metadataRaw.getString(metaKey));
+					}
+				}
+
+				FileInputStream inputStream= new FileInputStream(tempFile);
+				toSystem.createObject(toBucket, key, inputStream, headers, metadata);
+				inputStream.close();
+
+				tempFile.delete();
+			}
+			
+		
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
 	}
 
 

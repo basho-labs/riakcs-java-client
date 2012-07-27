@@ -117,6 +117,12 @@ public class RiakCSClient
 		return csClient.listObjects(bucketName);
 	}
 	
+	public JSONObject listObjectNames(String bucketName) throws RiakCSException
+	{
+		//Can be slow with large number of objects
+		return csClient.listObjects(bucketName, false);
+	}
+	
 	public JSONObject getObject(String bucketName, String objectKey) throws RiakCSException
 	{
 		// Content gets returned as part of the JSONObject
@@ -218,7 +224,16 @@ public class RiakCSClient
 		csClient.uploadContentOfDirectory(fromDirectory, toBucket);
 	}
 	
-	
+
+	public static void copyBucketBetweenSystems(RiakCSClient fromSystem, String fromBucket, RiakCSClient toSystem, String toBucket) throws RiakCSException
+	{
+		if(fromSystem.isBucketAccessible(fromBucket) == false) throw new RiakCSException("Source Bucket doesn't exist");
+		if(toSystem.isBucketAccessible(toBucket)) throw new RiakCSException("Bucket already exists, choose different bucket name");
+
+		toSystem.createBucket(toBucket);
+		RiakCSClientImpl.copyBucketBetweenSystems(fromSystem, fromBucket, toSystem, toBucket);
+	}
+
 	private RiakCSClientImpl csClient= null;
 
 }
