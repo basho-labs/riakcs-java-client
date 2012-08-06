@@ -1,4 +1,4 @@
-## Java Riak CS Client
+## Riak CS Java Client
 
 Lightweight Java library for Amazon S3 and Riak CS. No external dependencies.
 
@@ -48,7 +48,7 @@ ACL APIs: "Regular" ACLs for buckets and objects
     void addAdditionalACLToBucket(String bucketName, String emailAddress, Permission permission)
     void addAdditionalACLToObject(String bucketName, String objectKey, String emailAddress, Permission permission)
 
-Statistic APIs (Riak CS Only)
+Statistic APIs (Riak CS only)
 
     JSONObject getAccessStatistic(String keyForUser, int howManyHrsBack)
     JSONObject getStorageStatistic(String keyForUser, int howManyHrsBack)
