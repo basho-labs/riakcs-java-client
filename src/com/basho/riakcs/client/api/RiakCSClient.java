@@ -19,6 +19,7 @@ import java.util.*;
 import org.json.*;
 
 import com.basho.riakcs.client.impl.*;
+import com.basho.riakcs.client.impl.RiakCSClientImpl.UserListMode;
 
 public class RiakCSClient
 {
@@ -58,7 +59,19 @@ public class RiakCSClient
 	public JSONObject listUsers() throws RiakCSException
 	{
 		// requires CS >= 1.2
-		return csClient.listUsers();
+		return csClient.listUsers(UserListMode.ALL);
+	}
+
+	public JSONObject listEnabledUsers() throws RiakCSException
+	{
+		// requires CS >= 1.2
+		return csClient.listUsers(UserListMode.ENABLED_ONLY);
+	}
+
+	public JSONObject listDisabledUsers() throws RiakCSException
+	{
+		// requires CS >= 1.2
+		return csClient.listUsers(UserListMode.DISABLED_ONLY);
 	}
 
 	public JSONObject getUserInfo(String key_id) throws RiakCSException
@@ -71,6 +84,18 @@ public class RiakCSClient
 	{
 		// requires CS >= 1.2
 		return csClient.getMyUserInfo();
+	}
+	
+	public void disableUser(String key_id) throws RiakCSException
+	{
+		// requires CS >= 1.2
+		csClient.disableUser(key_id);
+	}
+
+	public void enableUser(String key_id) throws RiakCSException
+	{
+		// requires CS >= 1.2
+		csClient.enableUser(key_id);
 	}
 
 	

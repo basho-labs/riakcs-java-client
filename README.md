@@ -10,28 +10,34 @@ Example code can be found in: examples.com.basho.riakcs.client
 User Management (Riak CS only)
 
     JSONObject createUser(String fullname, String emailAddress)
+    void       enableUser(String key_id)
+    void       disableUSer(String key_id)
+
     JSONObject listUsers()
+    JSONObject listEnabledUsers()
+    JSONObject listDisabledUsers()
+    
     JSONObject getUserInfo(String key_id)
     JSONObject getMyUserInfo()
 
 Bucket APIs
 
-    void createBucket(String bucketName)
+    void       createBucket(String bucketName)
     JSONObject listBuckets()
-    boolean isBucketAccessible(String bucketName)
+    boolean    isBucketAccessible(String bucketName)
     JSONObject getACLForBucket(String bucketName)
-    void deleteBucket(String bucketName)
+    void       deleteBucket(String bucketName)
 
 Object APIs
 
-    void createObject(String bucketName, String objectKey, InputStream dataInputStream, Map<String, String> headers, Map<String, String> metadata)
+    void       createObject(String bucketName, String objectKey, InputStream dataInputStream, Map<String, String> headers, Map<String, String> metadata)
     JSONObject listObjects(String bucketName)
     JSONObject listObjectNames(String bucketName)
     JSONObject getObject(String bucketName, String objectKey)
     JSONObject getObject(String bucketName, String objectKey, OutputStream dataOutputStream)
     JSONObject getObjectInfo(String bucketName, String objectKey)
     JSONObject getACLForObject(String bucketName, String objectKey)
-    void deleteObject(String bucketName, String objectKey)
+    void       deleteObject(String bucketName, String objectKey)
 
 ACL APIs: "Canned" ACLs for buckets and objects
 

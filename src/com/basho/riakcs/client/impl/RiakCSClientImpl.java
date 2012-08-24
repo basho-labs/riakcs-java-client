@@ -102,7 +102,9 @@ public class RiakCSClientImpl
 	}
 
 
-	public JSONObject listUsers() throws RiakCSException
+	public static enum UserListMode{ ALL, ENABLED_ONLY, DISABLED_ONLY };
+	
+	public JSONObject listUsers(UserListMode listMode) throws RiakCSException
 	{
 		if(endpointIsS3()) throw new RiakCSException("Not Supported on AWS S3");
 
@@ -112,9 +114,15 @@ public class RiakCSClientImpl
 			Map<String, String> headers= new HashMap<String, String>();
 			headers.put("Accept", "application/json");
 	
+			String filterArgument= "";
+			if(listMode == UserListMode.ENABLED_ONLY)
+				filterArgument= "?status=enabled";
+			else if(listMode == UserListMode.DISABLED_ONLY)
+				filterArgument= "?status=disabled";
+
 			CommunicationLayer comLayer= getCommunicationLayer();
 			
-			URL url= comLayer.generateCSUrl("/riak-cs/users");		
+			URL url= comLayer.generateCSUrl("/riak-cs/users"+filterArgument);
 			HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, headers);
 			InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
 			
@@ -194,6 +202,45 @@ public class RiakCSClientImpl
 		}
 		
 		return result;
+	}
+
+
+	public void enableUser(String key_id) throws RiakCSException
+	{
+		enableDisableUser(key_id, true);
+	}
+
+	public void disableUser(String key_id) throws RiakCSException
+	{
+		enableDisableUser(key_id, false);
+	}
+
+	private void enableDisableUser(String key_id, boolean enable) throws RiakCSException
+	{
+		if(endpointIsS3()) throw new RiakCSException("Not Supported on AWS S3");
+
+		try {
+			JSONObject postData= new JSONObject();
+			if(enable)
+				postData.put("status", "enabled");
+			else
+				postData.put("status", "disabled");
+			
+			InputStream dataInputStream= new ByteArrayInputStream(postData.toString().getBytes("UTF-8"));
+	
+			Map<String, String> headers= new HashMap<String, String>();
+			headers.put("Content-Type", "application/json");
+			headers.put("Content-Length", String.valueOf(dataInputStream.available()));
+			
+			CommunicationLayer comLayer= getCommunicationLayer();
+			
+			URL url= comLayer.generateCSUrl("/riak-cs/user/"+key_id);		
+			comLayer.makeCall(CommunicationLayer.HttpMethod.PUT, url, dataInputStream, headers);
+
+		} catch(Exception e)
+		{
+			throw new RiakCSException(e);
+		}
 	}
 
 

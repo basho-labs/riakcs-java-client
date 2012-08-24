@@ -36,10 +36,22 @@ public class UserOperations
 		JSONObject userInfo= csClient.getMyUserInfo();
 		System.out.println(userInfo.toString(2));
 
-//		JSONObject userInfo= csClient.getUserInfo("YT3FHHROU6I88JHIX9C3"); // use key_id from existing user
+//		JSONObject userInfo= csClient.getUserInfo("GFUPU2YDTCICR4PMOGRP"); // use key_id from existing user
 //		System.out.println(userInfo.toString(2));
 
+//		csClient.disableUser("GFUPU2YDTCICR4PMOGRP"); // use key_id from existing user
+//		JSONObject userList= csClient.listDisabledUsers();
+//		System.out.println(userList.toString(2));
+//
+//		csClient.enableUser("TK9KAEBX201ERVTPCNB5"); // use key_id from existing user
+		
 		JSONObject userList= csClient.listUsers();
+		System.out.println(userList.toString(2));
+
+		userList= csClient.listEnabledUsers();
+		System.out.println(userList.toString(2));
+
+		userList= csClient.listDisabledUsers();
 		System.out.println(userList.toString(2));
 	}
 
