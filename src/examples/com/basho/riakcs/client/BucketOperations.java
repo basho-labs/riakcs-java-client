@@ -1,4 +1,6 @@
-/*
+/* 
+ * Copyright (c) 2012 Basho Technologies, Inc.  All Rights Reserved.
+ * 
  * This file is provided to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,7 +25,7 @@ public class BucketOperations
 	{
 		RiakCSClient csClient= null;
 
-		String bucketName= "playground-345";
+		String bucketName= "playground-123";
 
 		if (runAgainstRiakCS)
 		{

@@ -1,4 +1,6 @@
 /*
+ * Copyright (c) 2012 Basho Technologies, Inc.  All Rights Reserved.
+ * 
  * This file is provided to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,8 +26,8 @@ import com.basho.riakcs.client.impl.RiakCSClientImpl.UserListMode;
 public class RiakCSClient
 {
 	
-	//	Default Constructor for RiakCS
-	//	csEndpoint : Hostname:Port of RiakCS installation .. example: localhost:8080
+	// Default Constructor for RiakCS
+	// csEndpoint : Hostname:Port of RiakCS installation .. example: localhost:8080
 
 	public RiakCSClient(String csAccessKey, String csSecretKey, String csEndpoint, boolean useSSL)
 	{
@@ -180,10 +182,10 @@ public class RiakCSClient
 	//
 
 	// "Canned" ACLs for buckets and objects
-    public static final String PERM_PRIVATE           = "private";
-    public static final String PERM_PUBLIC_READ       = "public-read";
-    public static final String PERM_PUBLIC_READ_WRITE = "public-read-write";
-    public static final String PERM_AUTHENTICATED_READ= "authenticated-read";
+	public static final String PERM_PRIVATE           = "private";
+	public static final String PERM_PUBLIC_READ       = "public-read";
+	public static final String PERM_PUBLIC_READ_WRITE = "public-read-write";
+	public static final String PERM_AUTHENTICATED_READ= "authenticated-read";
 
 	public void setCannedACLForBucket(String bucketName, String cannedACL) throws RiakCSException
 	{
