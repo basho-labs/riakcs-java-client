@@ -166,7 +166,7 @@ public class CommunicationLayer
 				if(headers.containsKey("Content-Length"))
 					conn.setFixedLengthStreamingMode(Integer.parseInt(headers.get("Content-Length")));
 
-				if (debugModeEnabled) debugRequest(conn, EMPTY_STRING_MAP, dataInputStream);
+				if (debugModeEnabled) debugRequest(conn, dataInputStream);
 
 				conn.setDoOutput(true);
 				conn.connect();
@@ -183,8 +183,9 @@ public class CommunicationLayer
 					outputStream.close();
 				}
 			} else {
-				if (debugModeEnabled) debugRequest(conn, EMPTY_STRING_MAP, dataInputStream);
+				if (debugModeEnabled) debugRequest(conn, dataInputStream);
 
+				conn.setRequestProperty("Content-Type", "");
 				conn.setDoInput(true);
 				conn.connect();
 			}
@@ -244,7 +245,7 @@ public class CommunicationLayer
 	}
 
 
-	private void debugRequest(HttpURLConnection conn, Map<String, String> queryParameters, InputStream dataInputStream) throws Exception
+	private void debugRequest(HttpURLConnection conn, InputStream dataInputStream) throws Exception
 	{
 		System.out.println("REQUEST\n=======");
 		System.out.println("Method : " + conn.getRequestMethod());
@@ -264,16 +265,6 @@ public class CommunicationLayer
 			for (Map.Entry<String, List<String>> header : conn.getRequestProperties().entrySet())
 			{
 				System.out.println("  " + header.getKey() + "=" + header.getValue().get(0));
-			}
-		}
-
-		// Print Query Parameters
-		if (queryParameters.size() > 0)
-		{
-			System.out.println("Query Parameters:");
-			for (Map.Entry<String, String> param : queryParameters.entrySet())
-			{
-				System.out.println("  " + param.getKey() + "=" + param.getValue());
 			}
 		}
 

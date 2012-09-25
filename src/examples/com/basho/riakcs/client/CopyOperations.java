@@ -27,7 +27,7 @@ public class CopyOperations
 	public static void runIt(boolean enableDebugOutput) throws Exception
 	{
 		CSCredentials csCredentials= new CSCredentials(CSCredentials.class.getResourceAsStream("CSCredentials.Riak.properties"));			
-		RiakCSClient csClient= new RiakCSClient(csCredentials.getCSAccessKey(), csCredentials.getsCSSecretKey(), csCredentials.getCSEndPoint(), false);
+		RiakCSClient csClient= new RiakCSClient(csCredentials.getCSAccessKey(), csCredentials.getsCSSecretKey(), csCredentials.getCSEndPoint(), csCredentials.getUseHttps());
 
 		CSCredentials s3Credentials= new CSCredentials(CSCredentials.class.getResourceAsStream("CSCredentials.AWS.properties"));
 		RiakCSClient s3Client= new RiakCSClient(s3Credentials.getCSAccessKey(), s3Credentials.getsCSSecretKey());

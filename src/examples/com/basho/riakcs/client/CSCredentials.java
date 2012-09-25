@@ -24,6 +24,7 @@ public class CSCredentials
 	private String accessKey= null;
 	private String secretKey= null;
 	private String endPoint = null;
+	private String useHttps = null;
 
 	public CSCredentials(InputStream inputStream) throws IOException
 	{
@@ -35,6 +36,7 @@ public class CSCredentials
 		accessKey= csProperties.getProperty("accessKey");
 		secretKey= csProperties.getProperty("secretKey");
 		endPoint = csProperties.getProperty("endPoint");
+		useHttps = csProperties.getProperty("useHttps", "false");
 	}
 
 	public String getCSAccessKey()
@@ -50,6 +52,11 @@ public class CSCredentials
 	public String getCSEndPoint()
 	{
 		return endPoint;
+	}
+
+	public boolean getUseHttps()
+	{
+		return new Boolean(useHttps);
 	}
 
 }
