@@ -29,8 +29,6 @@ public class CommunicationLayer
 {
     public enum HttpMethod {GET, HEAD, PUT, DELETE, POST};
 
-    private final Map<String, String> EMPTY_STRING_MAP= new HashMap<String, String>();
-    
     private static final SimpleDateFormat rfc822DateFormat= new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
 
     private String csAccessKey= null;
@@ -79,19 +77,26 @@ public class CommunicationLayer
 		// Include the bucket name in the URI except for alternative hostnames
 		if (bucketName.length() > 0 && hostname.equals(csEndpoint))
 		{
-			requestUrl+= "/" + URLEncoder.encode(bucketName, "UTF-8");
+			if(!requestUrl.endsWith("/"))
+				requestUrl+= "/";
+			
+			requestUrl+= URLEncoder.encode(bucketName, "UTF-8");
 		}
 
 		// Add object name component to URI if present
 		if (objectKey.length() > 0)
 		{
-			requestUrl+= "/" + URLEncoder.encode(objectKey, "UTF-8");
+			if(!requestUrl.endsWith("/"))
+				requestUrl+= "/";
+			
+			requestUrl+= URLEncoder.encode(objectKey, "UTF-8");
 		}
 
 		// Ensure URL includes at least a slash in the path, if nothing else
 		if (objectKey.length() == 0 && !hostname.equals(csEndpoint))
 		{
-			requestUrl+= "/";
+			if(!requestUrl.endsWith("/"))
+				requestUrl+= "/";
 		}
 
 		// Add request parameters to the URI.
@@ -122,7 +127,7 @@ public class CommunicationLayer
 
 	public HttpURLConnection makeCall(HttpMethod method, URL url) throws Exception
 	{
-		return makeCallImpl(method, url, true, null, EMPTY_STRING_MAP);
+		return makeCallImpl(method, url, true, null, new HashMap<String, String>());
 	}
 
 	public HttpURLConnection makeCall(HttpMethod method, URL url, InputStream dataInputStream, Map<String, String> headers) throws Exception
