@@ -341,8 +341,12 @@ public class CommunicationLayer
 
 	private boolean isValidDnsName(String bucketName)
 	{
+    // This application does not give the user the option to not use dns-style bucket names,
+    // but CF fails if dns-style names are used.
+    // Either we should provider the user with an option, or we should remove this method.
+    return false;
 		// Ensure bucket name is within length constraints
-		if (bucketName == null || bucketName.length() > 63 || bucketName.length() < 3)
+/*		if (bucketName == null || bucketName.length() > 63 || bucketName.length() < 3)
 		{
 			return false;
 		}
@@ -371,7 +375,7 @@ public class CommunicationLayer
 			}
 		}
 
-		return true;
+		return true; */
 	}
     
 	private String generateRestSignature(HttpMethod method, URL url, Map<String, String> headers) throws Exception

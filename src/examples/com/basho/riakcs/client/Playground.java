@@ -25,24 +25,25 @@ public class Playground
 
 	public static void main(String[] args) throws Exception
 	{
-		boolean debugFlag= debugDisabled;
-//		boolean debugFlag= debugEnabled;
-
-		UserOperations.runIt(debugFlag);
+    boolean debugFlag= debugDisabled;
+//   boolean debugFlag= debugEnabled;
 
 		BucketOperations.runIt(runAgainstCS, debugFlag);
-		BucketOperations.runIt(runAgainstS3, debugFlag);
+
+    System.out.println("\n\n*** BUCKET OPERATIONS COMPLETED ***\n\n");
 
 		ObjectOperations.runIt(runAgainstCS, debugFlag);
-		ObjectOperations.runIt(runAgainstS3, debugFlag);
+
+    System.out.println("\n\n*** OBJECT OPERATIONS COMPLETED ***\n\n");
 
 		ToolOperations.runIt(runAgainstCS, debugFlag);
-		ToolOperations.runIt(runAgainstS3, debugFlag);
+
+    System.out.println("\n\n*** TOOL OPERATIONS COMPLETED ***\n\n");
 
 		CopyOperations.runIt(debugFlag);
 
-		StatisticOperations.runIt(debugFlag);
-	
-	}
+    System.out.println("\n\n*** COPY OPERATIONS COMPLETED ***\n\n");
 
+	}
 }
+
