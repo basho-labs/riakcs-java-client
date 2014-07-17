@@ -35,15 +35,6 @@ public class Playground
 		ObjectOperations.runIt(runAgainstCS, debugFlag);
 
     System.out.println("\n\n*** OBJECT OPERATIONS COMPLETED ***\n\n");
-
-		ToolOperations.runIt(runAgainstCS, debugFlag);
-
-    System.out.println("\n\n*** TOOL OPERATIONS COMPLETED ***\n\n");
-
-		CopyOperations.runIt(debugFlag);
-
-    System.out.println("\n\n*** COPY OPERATIONS COMPLETED ***\n\n");
-
 	}
 }
 

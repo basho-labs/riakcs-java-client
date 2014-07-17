@@ -62,14 +62,7 @@ public class CommunicationLayer
 	public URL generateCSUrl(String bucketName, String objectKey, Map<String, String> parameters) throws Exception
 	{
 		// Decide between the default and sub-domain host name formats
-		String hostname= null;
-		if (isValidDnsName(bucketName))
-		{
-			hostname= bucketName + "." + csEndpoint;
-		} else
-		{
-			hostname= csEndpoint;
-		}
+		String hostname= csEndpoint;
 
 		// Build an initial secure or non-secure URI for the end point.
 		String requestUrl= (useSSL ? "https://" : "http://") + hostname;
@@ -337,45 +330,6 @@ public class CommunicationLayer
 	private Date currentTime()
 	{
 		return new Date(System.currentTimeMillis());
-	}
-
-	private boolean isValidDnsName(String bucketName)
-	{
-    // This application does not give the user the option to not use dns-style bucket names,
-    // but CF fails if dns-style names are used.
-    // Either we should provider the user with an option, or we should remove this method.
-    return false;
-		// Ensure bucket name is within length constraints
-/*		if (bucketName == null || bucketName.length() > 63 || bucketName.length() < 3)
-		{
-			return false;
-		}
-
-		// Only lower-case letters, numbers, '.' or '-' characters allowed
-		if (!Pattern.matches("^[a-z0-9][a-z0-9.-]+$", bucketName))
-		{
-			return false;
-		}
-
-		// Cannot be an IP address (must contain at least one lower-case letter)
-		if (!Pattern.matches(".*[a-z].*", bucketName))
-		{
-			return false;
-		}
-
-		// Components of name between '.' characters cannot start or end with
-		// '-',
-		// and cannot be empty
-		String[] fragments= bucketName.split("\\.");
-		for (int i= 0; i < fragments.length; i++)
-		{
-			if (Pattern.matches("^-.*", fragments[i]) || Pattern.matches(".*-$", fragments[i]) || Pattern.matches("^$", fragments[i]))
-			{
-				return false;
-			}
-		}
-
-		return true; */
 	}
     
 	private String generateRestSignature(HttpMethod method, URL url, Map<String, String> headers) throws Exception
