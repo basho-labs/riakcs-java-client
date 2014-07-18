@@ -7,7 +7,7 @@ Lightweight Java library to interact with a CF Riak CS instance.
 
 ## Operation
 
-* Update the contents of `src/examples/com/basho/riakcs/client/CSCredentials.Riak.properties` to include the key/id from `VCAP\SERVICES`, and set the hostname to p-riakcs.yourhostname
+* Update the contents of `src/examples/com/basho/riakcs/client/CSCredentials.Riak.properties` to include the key/id from `VCAP_SERVICES`, and set the hostname to `p-riakcs.yourhostname`
 * `mvn clean install`
 * `java -jar target/riak-cs-client-0.0.1-SNAPSHOT-jar-with-dependencies.jar`
 
