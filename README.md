@@ -1,26 +1,17 @@
-## Riak CS Java Client
+Lightweight Java library to interact with a CF Riak CS instance.
 
-Lightweight Java library for Amazon S3 and Riak CS. No external dependencies.
+## Pre-requisites
 
-Based on code from the book: "Programming Amazon Web Services"
-http://shop.oreilly.com/product/9780596515812.do
+* Maven
+* JDK version >= 1.6
 
-Example code can be found in: examples.com.basho.riakcs.client
+## Operation
 
-User Management (Riak CS only)
+* Update the contents of `src/examples/com/basho/riakcs/client/CSCredentials.Riak.properties` to include the key/id from `VCAP\SERVICES`, and set the hostname to p-riakcs.yourhostname
+* `mvn clean install`
+* `java -jar target/riak-cs-client-0.0.1-SNAPSHOT-jar-with-dependencies.jar`
 
-    JSONObject createUser(String fullname, String emailAddress)
-    void       enableUser(String key_id)
-    void       disableUSer(String key_id)
-
-    JSONObject listUsers()
-    JSONObject listEnabledUsers()
-    JSONObject listDisabledUsers()
-    
-    JSONObject getUserInfo(String key_id)
-    JSONObject getMyUserInfo()
-
-Bucket APIs
+### Bucket APIs
 
     void       createBucket(String bucketName)
     JSONObject listBuckets()
@@ -28,7 +19,7 @@ Bucket APIs
     JSONObject getACLForBucket(String bucketName)
     void       deleteBucket(String bucketName)
 
-Object APIs
+### Object APIs
 
     void       createObject(String bucketName, String objectKey, InputStream dataInputStream, Map<String, String> headers, Map<String, String> metadata)
     JSONObject listObjects(String bucketName)
@@ -39,28 +30,3 @@ Object APIs
     JSONObject getACLForObject(String bucketName, String objectKey)
     void       deleteObject(String bucketName, String objectKey)
 
-ACL APIs: "Canned" ACLs for buckets and objects
-
-    PERM_PRIVATE, PERM__READ, PERM__READ_WRITE, PERM_AUTHENTICATED_READ
-
-    void setCannedACLForBucket(String bucketName, String cannedACL)
-    void setCannedACLForObject(String bucketName, String objectKey, String cannedACL)
-
-	
-ACL APIs: "Regular" ACLs for buckets and objects
-
-    READ, WRITE, READ_ACP, WRITE_ACP, FULL_CONTROL
-
-    void addAdditionalACLToBucket(String bucketName, String emailAddress, Permission permission)
-    void addAdditionalACLToObject(String bucketName, String objectKey, String emailAddress, Permission permission)
-
-Statistic APIs (Riak CS only)
-
-    JSONObject getAccessStatistic(String keyForUser, int howManyHrsBack)
-    JSONObject getStorageStatistic(String keyForUser, int howManyHrsBack)
-
-Tool APIs
-
-    void removeBucketAndContent(String bucketName)
-    void uploadContentOfDirectory(File fromDirectory, String toBucket)
-    void copyBucketBetweenSystems(RiakCSClient fromSystem, String fromBucket, RiakCSClient toSystem, String toBucket)
