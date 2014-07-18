@@ -30,3 +30,4 @@ Lightweight Java library to interact with a CF Riak CS instance.
     JSONObject getACLForObject(String bucketName, String objectKey)
     void       deleteObject(String bucketName, String objectKey)
 
+License forthcoming.
