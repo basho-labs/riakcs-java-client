@@ -35,7 +35,7 @@ If you set `useHttps=true` in `CSCredentials.Riak.properties` and your Riak CS d
 
         $ sudo keytool -importcert -alias dev -file p-riakcs.cer -keystore /Library/Java/Home/lib/security/cacerts
 
-When asked for the keystore password, try `changeit`.
+When asked for the keystore password, try `changeit`. Executing the jar should succeed now.
 
 ## Bucket APIs
 
