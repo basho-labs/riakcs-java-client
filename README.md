@@ -7,9 +7,18 @@ Lightweight Java library to interact with a CF Riak CS instance.
 
 ## Operation
 
-* Update the contents of `src/examples/com/basho/riakcs/client/CSCredentials.Riak.properties` to include the key/id from `VCAP_SERVICES`, and set the hostname to `p-riakcs.yourhostname`
-* `mvn clean install`
-* `java -jar target/riak-cs-client-0.0.1-SNAPSHOT-jar-with-dependencies.jar`
+1. Update the contents of `src/examples/com/basho/riakcs/client/CSCredentials.Riak.properties` with credentials from `VCAP_SERVICES`
+
+        #Credentials for RiakCS Installation
+        accessKey=access_key_id
+        secretKey=secret_access_key
+        
+        #hostname:port for your RiakCS installation
+        endPoint=hostname_from_uri #eg. p-riakcs.system-domain.com
+        useHttps=false
+
+1. `mvn clean install`
+1. `java -jar target/riak-cs-client-0.0.1-SNAPSHOT-jar-with-dependencies.jar`
 
 ### Bucket APIs
 
