@@ -22,6 +22,21 @@ Executing the compiled jar will run two suites of tests for the Bucket and Objec
 1. `$ mvn clean install`
 1. `$ java -jar target/riak-cs-client-0.0.1-SNAPSHOT-jar-with-dependencies.jar`
 
+### SSL
+
+If you set `useHttps=true` in `CSCredentials.Riak.properties` and your Riak CS deployment uses a self-signed certificate, executing the jar above will fail. On OSX you can work around this by adding the self-signed cert to your Java keystore:
+
+1. Display the certificate
+
+        $ openssl s_client -connect p-riakcs.system-domain.com:443 -showcerts
+1. Copy from "-----BEGIN CER....................." to ".....................END CERTIFICATE-----" inclusively.
+1. Paste this text into a new file eg. `p-riakcs.cer`
+1. Save the cert to java keystore
+
+        $ sudo keytool -importcert -alias dev -file p-riakcs.cer -keystore /Library/Java/Home/lib/security/cacerts
+
+When asked for the keystore password, try `changeit`.
+
 ## Bucket APIs
 
     void       createBucket(String bucketName)
