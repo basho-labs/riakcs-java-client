@@ -5,7 +5,9 @@ Lightweight Java library to interact with a CF Riak CS instance.
 * Maven
 * JDK version >= 1.6
 
-## Operation
+## Run the Smoketest
+
+Executing the compiled jar will run two suites of tests for the Bucket and Object APIs. This test creates a bucket, writes and read, and deletes the bucket.
 
 1. Update the contents of `src/examples/com/basho/riakcs/client/CSCredentials.Riak.properties` with credentials from `VCAP_SERVICES`
 
@@ -17,10 +19,10 @@ Lightweight Java library to interact with a CF Riak CS instance.
         endPoint=hostname_from_uri #eg. p-riakcs.system-domain.com
         useHttps=false
 
-1. `mvn clean install`
-1. `java -jar target/riak-cs-client-0.0.1-SNAPSHOT-jar-with-dependencies.jar`
+1. `$ mvn clean install`
+1. `$ java -jar target/riak-cs-client-0.0.1-SNAPSHOT-jar-with-dependencies.jar`
 
-### Bucket APIs
+## Bucket APIs
 
     void       createBucket(String bucketName)
     JSONObject listBuckets()
@@ -28,7 +30,7 @@ Lightweight Java library to interact with a CF Riak CS instance.
     JSONObject getACLForBucket(String bucketName)
     void       deleteBucket(String bucketName)
 
-### Object APIs
+## Object APIs
 
     void       createObject(String bucketName, String objectKey, InputStream dataInputStream, Map<String, String> headers, Map<String, String> metadata)
     JSONObject listObjects(String bucketName)
