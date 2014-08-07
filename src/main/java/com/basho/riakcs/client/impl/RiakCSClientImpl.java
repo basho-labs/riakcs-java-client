@@ -20,11 +20,14 @@ import java.net.*;
 import java.text.*;
 import java.util.*;
 
-import org.json.*;
 import org.w3c.dom.*;
 
 import com.basho.riakcs.client.api.*;
 import com.basho.riakcs.client.api.RiakCSClient.Permission;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 
 public class RiakCSClientImpl
@@ -70,16 +73,16 @@ public class RiakCSClientImpl
 	}
 
 
-	public JSONObject createUser(String fullname, String emailAddress) throws RiakCSException
+	public JsonObject createUser(String fullname, String emailAddress) throws RiakCSException
 	{
 		if(endpointIsS3()) throw new RiakCSException("Not Supported on AWS S3");
 
-		JSONObject result= null;
+		JsonObject result= null;
 
 		try {
-			JSONObject postData= new JSONObject();
-			postData.put("email", emailAddress);
-			postData.put("name", fullname);
+			JsonObject postData= new JsonObject();
+			postData.addProperty("email", emailAddress);
+			postData.addProperty("name", fullname);
 			
 			InputStream dataInputStream= new ByteArrayInputStream(postData.toString().getBytes("UTF-8"));
 	
@@ -93,7 +96,7 @@ public class RiakCSClientImpl
 			HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.POST, url, dataInputStream, headers);
 			InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
 			
-			result= new JSONObject(new JSONTokener(inputStreamReader));
+			result= new JsonParser().parse(inputStreamReader).getAsJsonObject();
 
 		} catch(Exception e)
 		{
@@ -106,11 +109,11 @@ public class RiakCSClientImpl
 
 	public static enum UserListMode{ ALL, ENABLED_ONLY, DISABLED_ONLY };
 	
-	public JSONObject listUsers(UserListMode listMode) throws RiakCSException
+	public JsonObject listUsers(UserListMode listMode) throws RiakCSException
 	{
 		if(endpointIsS3()) throw new RiakCSException("Not Supported on AWS S3");
 
-		JSONObject result= null;
+		JsonObject result= null;
 		
 		try {
 			Map<String, String> headers= new HashMap<String, String>();
@@ -128,21 +131,20 @@ public class RiakCSClientImpl
 			HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, headers);
 			InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
 			
-			JSONArray userList= new JSONArray();
+			JsonArray userList= new JsonArray();
 	
 			BufferedReader reader= new BufferedReader(inputStreamReader);
 			for (String line; (line= reader.readLine()) != null;)
 			{
 				if(line.startsWith("["))
 				{
-					JSONArray aUserlist= new JSONArray(new JSONTokener(line));
-					for(int pt= 0; pt < aUserlist.length(); pt++)
-						userList.put(aUserlist.getJSONObject(pt));
-				}
+					JsonArray aUserlist= new JsonParser().parse(line).getAsJsonArray();
+					userList.addAll(aUserlist);
+                }
 			}
 			  
-			result= new JSONObject();
-			result.put("userlist", userList);
+			result= new JsonObject();
+			result.add("userlist", userList);
 		
 		} catch(Exception e)
 		{
@@ -153,11 +155,11 @@ public class RiakCSClientImpl
 	}
 
 
-	public JSONObject getUserInfo(String key_id) throws RiakCSException
+	public JsonObject getUserInfo(String key_id) throws RiakCSException
 	{
 		if(endpointIsS3()) throw new RiakCSException("Not Supported on AWS S3");
 
-		JSONObject result= null;
+		JsonObject result= null;
 		
 		try {
 			Map<String, String> headers= new HashMap<String, String>();
@@ -169,7 +171,7 @@ public class RiakCSClientImpl
 			HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, headers);
 			InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
 			
-			result= new JSONObject(new JSONTokener(inputStreamReader));
+			result= new JsonParser().parse(inputStreamReader).getAsJsonObject();
 		
 		} catch(Exception e)
 		{
@@ -180,11 +182,11 @@ public class RiakCSClientImpl
 	}
 
 	
-	public JSONObject getMyUserInfo() throws RiakCSException
+	public JsonObject getMyUserInfo() throws RiakCSException
 	{
 		if(endpointIsS3()) throw new RiakCSException("Not Supported on AWS S3");
 
-		JSONObject result= null;
+		JsonObject result= null;
 		
 		try {
 			Map<String, String> headers= new HashMap<String, String>();
@@ -196,7 +198,7 @@ public class RiakCSClientImpl
 			HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, headers);
 			InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
 			
-			result= new JSONObject(new JSONTokener(inputStreamReader));
+			result= new JsonParser().parse(inputStreamReader).getAsJsonObject();
 		
 		} catch(Exception e)
 		{
@@ -222,11 +224,11 @@ public class RiakCSClientImpl
 		if(endpointIsS3()) throw new RiakCSException("Not Supported on AWS S3");
 
 		try {
-			JSONObject postData= new JSONObject();
+			JsonObject postData= new JsonObject();
 			if(enable)
-				postData.put("status", "enabled");
+				postData.addProperty("status", "enabled");
 			else
-				postData.put("status", "disabled");
+				postData.addProperty("status", "disabled");
 			
 			InputStream dataInputStream= new ByteArrayInputStream(postData.toString().getBytes("UTF-8"));
 	
@@ -261,33 +263,33 @@ public class RiakCSClientImpl
 	}
 
 
-	public JSONObject listBuckets() throws RiakCSException
+	public JsonObject listBuckets() throws RiakCSException
 	{
 		CommunicationLayer comLayer= getCommunicationLayer();
 
-		JSONObject bucketList= null;
+		JsonObject bucketList= null;
 		
 		try {
 			URL url= comLayer.generateCSUrl("", "", EMPTY_STRING_MAP);
 			HttpURLConnection conn= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url);
 			Document xmlDoc= XMLUtils.parseToDocument(conn.getInputStream(), debugModeEnabled);
 	
-			bucketList= new JSONObject();
-	
+			bucketList= new JsonObject();
+            JsonArray buckets = new JsonArray();
 			for (Node node : XMLUtils.xpathToNodeList("//Buckets/Bucket", xmlDoc))
 			{
-				JSONObject bucket= new JSONObject();
-				bucket.put("name", XMLUtils.xpathToContent("Name", node));
-				bucket.put("creationDate", XMLUtils.xpathToContent("CreationDate", node));
+				JsonObject bucket= new JsonObject();
+				bucket.addProperty("name", XMLUtils.xpathToContent("Name", node));
+				bucket.addProperty("creationDate", XMLUtils.xpathToContent("CreationDate", node));
+                buckets.add(bucket);
+            }
 	
-				bucketList.append("bucketList", bucket);
-			}
+            bucketList.add("bucketList", buckets);
+			JsonObject owner= new JsonObject();
+			owner.addProperty("id", XMLUtils.xpathToContent("//Owner/ID", xmlDoc));
+			owner.addProperty("displayName", XMLUtils.xpathToContent("//Owner/DisplayName", xmlDoc));
 	
-			JSONObject owner= new JSONObject();
-			owner.put("id", XMLUtils.xpathToContent("//Owner/ID", xmlDoc));
-			owner.put("displayName", XMLUtils.xpathToContent("//Owner/DisplayName", xmlDoc));
-	
-			bucketList.put("owner", owner);
+			bucketList.add("owner", owner);
 
 		} catch(Exception e)
 		{
@@ -375,14 +377,14 @@ public class RiakCSClientImpl
 	}
 
 	
-	public JSONObject getObject(String bucketName, String objectKey) throws RiakCSException
+	public JsonObject getObject(String bucketName, String objectKey) throws RiakCSException
 	{
 		return getObject(bucketName, objectKey, null);
 	}
 
-	public JSONObject getObject(String bucketName, String objectKey, OutputStream dataOutputStream) throws RiakCSException
+	public JsonObject getObject(String bucketName, String objectKey, OutputStream dataOutputStream) throws RiakCSException
 	{
-		JSONObject object= null;
+		JsonObject object= null;
 		
 		try {
 			CommunicationLayer comLayer= getCommunicationLayer();
@@ -406,7 +408,7 @@ public class RiakCSClientImpl
 				inputStream.close();
 			} else
 			{
-				object.put("body", getInputStreamAsString(conn.getInputStream()));
+				object.addProperty("body", getInputStreamAsString(conn.getInputStream()));
 			}
 		
 		} catch(Exception e)
@@ -418,9 +420,9 @@ public class RiakCSClientImpl
 	}
 
 
-	public JSONObject getObjectInfo(String bucketName, String objectKey) throws RiakCSException
+	public JsonObject getObjectInfo(String bucketName, String objectKey) throws RiakCSException
 	{
-		JSONObject object= null;
+		JsonObject object= null;
 		
 		try {
 			CommunicationLayer comLayer= getCommunicationLayer();
@@ -439,10 +441,10 @@ public class RiakCSClientImpl
 	}
 
 
-	private JSONObject extractMetaInfoForObject(String objectKey, HttpURLConnection conn) throws JSONException 
+	private JsonObject extractMetaInfoForObject(String objectKey, HttpURLConnection conn) 
 	{
 		Map<String, String> responseHeaders= new HashMap<String, String>();
-		JSONObject metadata= new JSONObject();
+		JsonObject metadata= new JsonObject();
 
 		for (String headerName : conn.getHeaderFields().keySet())
 		{
@@ -451,35 +453,35 @@ public class RiakCSClientImpl
 
 			if (headerName.startsWith("x-amz-meta"))
 			{
-				metadata.put(headerName.substring(11), conn.getHeaderFields().get(headerName).get(0));
+				metadata.addProperty(headerName.substring(11), conn.getHeaderFields().get(headerName).get(0));
 			} else {
 				responseHeaders.put(headerName, conn.getHeaderFields().get(headerName).get(0));
 			}
 		}
 
-		JSONObject object= new JSONObject();
-		object.put("key", objectKey);
-		object.put("etag", responseHeaders.get("ETag"));
-		object.put("lastModified", responseHeaders.get("Last-Modified"));
-		object.put("size", responseHeaders.get("Content-Length"));
-		object.put("contenttype", responseHeaders.get("Content-Type"));
-		object.put("metadata", metadata);
+		JsonObject object= new JsonObject();
+		object.addProperty("key", objectKey);
+		object.addProperty("etag", responseHeaders.get("ETag"));
+		object.addProperty("lastModified", responseHeaders.get("Last-Modified"));
+		object.addProperty("size", responseHeaders.get("Content-Length"));
+		object.addProperty("contenttype", responseHeaders.get("Content-Type"));
+		object.add("metadata", metadata);
 		return object;
 	}
 
 
-	public JSONObject listObjects(String bucketName) throws RiakCSException
+	public JsonObject listObjects(String bucketName) throws RiakCSException
 	{
 		return listObjects(bucketName, true);
 	}
 
-	public JSONObject listObjects(String bucketName, boolean extendedList) throws RiakCSException
+	public JsonObject listObjects(String bucketName, boolean extendedList) throws RiakCSException
 	{
 		//TODO switch to more streaming type of mode
-		JSONObject result= new JSONObject();
+		JsonObject result= new JsonObject();
 		
 		try {
-			result.put("bucketName", bucketName);
+			result.addProperty("bucketName", bucketName);
 			
 			boolean isTruncated= true;
 			while (isTruncated)
@@ -489,29 +491,30 @@ public class RiakCSClientImpl
 				URL url= comLayer.generateCSUrl(bucketName, "", EMPTY_STRING_MAP);
 				HttpURLConnection conn= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url);
 				
-				result.put("objectList", new JSONArray());
+				JsonArray objectList = new JsonArray();
 				
 				Document xmlDoc= XMLUtils.parseToDocument(conn.getInputStream(), debugModeEnabled);
 				List<Node> nodeList= XMLUtils.xpathToNodeList("//Contents", xmlDoc);
 				for (Node node : nodeList)
 				{
-					JSONObject object = new JSONObject();
-					object.put("key", XMLUtils.xpathToContent("Key", node));
+					JsonObject object = new JsonObject();
+					object.addProperty("key", XMLUtils.xpathToContent("Key", node));
 					if (extendedList)
 					{
-						object.put("size", XMLUtils.xpathToContent("Size", node));
-						object.put("lastModified", XMLUtils.xpathToContent("LastModified", node));
-						object.put("etag", XMLUtils.xpathToContent("ETag", node));
+						object.addProperty("size", XMLUtils.xpathToContent("Size", node));
+						object.addProperty("lastModified", XMLUtils.xpathToContent("LastModified", node));
+						object.addProperty("etag", XMLUtils.xpathToContent("ETag", node));
 						
-						JSONObject owner= new JSONObject();
-						owner.put("id", XMLUtils.xpathToContent("Owner/ID", node));
-						owner.put("displayName", XMLUtils.xpathToContent("Owner/DisplayName", node));
-						object.put("owner", owner);
+						JsonObject owner= new JsonObject();
+						owner.addProperty("id", XMLUtils.xpathToContent("Owner/ID", node));
+						owner.addProperty("displayName", XMLUtils.xpathToContent("Owner/DisplayName", node));
+						object.add("owner", owner);
 					}
 					
-					result.append("objectList", object);
+					objectList.add(object);
 				}
 
+                result.add("objectList", objectList);
 				isTruncated= "true".equals(XMLUtils.xpathToContent("//IsTruncated", xmlDoc));				
 			}
 
@@ -569,15 +572,15 @@ public class RiakCSClientImpl
 	public void addAdditionalACLToBucket(String bucketName, String emailAddress, Permission permission) throws RiakCSException
 	{
 		try {
-			JSONObject oldACL= getACLForBucket(bucketName);
+			JsonObject oldACL= getACLForBucket(bucketName);
 			
-			JSONObject newGrant= new JSONObject();
-			JSONObject grantee= new JSONObject();
-			grantee.put("emailAddress", emailAddress);
-			newGrant.put("grantee", grantee);
-			newGrant.put("permission", permission);
+			JsonObject newGrant= new JsonObject();
+			JsonObject grantee= new JsonObject();
+			grantee.addProperty("emailAddress", emailAddress);
+			newGrant.add("grantee", grantee);
+			newGrant.addProperty("permission", permission.toString());
 	
-			oldACL.append("grantsList", newGrant);
+			oldACL.get("grantsList").getAsJsonArray().add(newGrant);
 	
 			addAdditionalACLImpl(bucketName, "", oldACL);
 
@@ -590,16 +593,16 @@ public class RiakCSClientImpl
 	public void addAdditionalACLToObject(String bucketName, String objectKey, String emailAddress, Permission permission) throws RiakCSException
 	{
 		try {
-			JSONObject oldACL= getACLForObject(bucketName, objectKey);
+			JsonObject oldACL= getACLForObject(bucketName, objectKey);
 			
-			JSONObject newGrant= new JSONObject();
-			JSONObject grantee= new JSONObject();
-			grantee.put("emailAddress", emailAddress);
-			newGrant.put("grantee", grantee);
-			newGrant.put("permission", permission);
+			JsonObject newGrant= new JsonObject();
+			JsonObject grantee= new JsonObject();
+			grantee.addProperty("emailAddress", emailAddress);
+			newGrant.add("grantee", grantee);
+			newGrant.addProperty("permission", permission.toString());
 	
-			oldACL.append("grantsList", newGrant);
-	
+            oldACL.get("grantsList").getAsJsonArray().add(newGrant);
+            
 			addAdditionalACLImpl(bucketName, objectKey, oldACL);
 
 		} catch(Exception e)
@@ -608,32 +611,32 @@ public class RiakCSClientImpl
 		}
 	}
 	
-	private void addAdditionalACLImpl(String bucketName, String objectKey, JSONObject acl) throws Exception
+	private void addAdditionalACLImpl(String bucketName, String objectKey, JsonObject acl) throws Exception
 	{
-		StringBuffer aclText= new StringBuffer();
+		StringBuilder aclText= new StringBuilder();
 
 		aclText.append("<AccessControlPolicy>");
-		aclText.append("<Owner><ID>" + acl.getJSONObject("owner").getString("id") + "</ID>");
-		aclText.append("<DisplayName>" + acl.getJSONObject("owner").getString("displayName") + "</DisplayName></Owner>");
+		aclText.append("<Owner><ID>").append(acl.getAsJsonObject("owner").get("id").getAsString()).append("</ID>");
+		aclText.append("<DisplayName>").append(acl.getAsJsonObject("owner").get("displayName").getAsString()).append("</DisplayName></Owner>");
 		aclText.append("<AccessControlList>");
 
-		JSONArray grantsList= acl.getJSONArray("grantsList");
-		for (int pt= 0; pt < grantsList.length(); pt++)
+		JsonArray grantsList= acl.getAsJsonArray("grantsList");
+		for (int pt= 0; pt < grantsList.size(); pt++)
 		{
-			JSONObject grant= grantsList.getJSONObject(pt);
+			JsonObject grant= grantsList.get(pt).getAsJsonObject();
 
-			aclText.append("<Grant><Permission>" + grant.getString("permission") + "</Permission>");
+			aclText.append("<Grant><Permission>").append(grant.getAsJsonObject("permission").getAsString()).append("</Permission>");
 			aclText.append("<Grantee");
 			aclText.append(" ").append("xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'");
 			
-			if (grant.getJSONObject("grantee").has("id"))
+			if (grant.getAsJsonObject("grantee").has("id"))
 			{
 				aclText.append(" xsi:type='CanonicalUser'>");
-				aclText.append("<ID>" + grant.getJSONObject("grantee").getString("id") + "</ID>");
+				aclText.append("<ID>").append(grant.getAsJsonObject("grantee").get("id").getAsString()).append("</ID>");
 			} else
 			{
 				aclText.append(" xsi:type='AmazonCustomerByEmail'>");
-				aclText.append("<EmailAddress>" + grant.getJSONObject("grantee").getString("emailAddress") + "</EmailAddress>");
+				aclText.append("<EmailAddress>").append(grant.getAsJsonObject("grantee").get("emailAddress").getAsString()).append("</EmailAddress>");
 			}
 			
 			aclText.append("</Grantee>");
@@ -656,9 +659,9 @@ public class RiakCSClientImpl
         comLayer.makeCall(CommunicationLayer.HttpMethod.PUT, url, dataInputStream, headers);
 	}
 
-	public JSONObject getACLForBucket(String bucketName) throws RiakCSException
+	public JsonObject getACLForBucket(String bucketName) throws RiakCSException
 	{
-		JSONObject result= null;
+		JsonObject result= null;
 		
 		try {
 			result= getAclImpl(bucketName, "");
@@ -671,9 +674,9 @@ public class RiakCSClientImpl
 		return result;
 	}
 
-	public JSONObject getACLForObject(String bucketName, String objectKey) throws RiakCSException
+	public JsonObject getACLForObject(String bucketName, String objectKey) throws RiakCSException
 	{
-		JSONObject result= null;
+		JsonObject result= null;
 		
 		try {
 			result= getAclImpl(bucketName, objectKey);
@@ -686,7 +689,7 @@ public class RiakCSClientImpl
 		return result;
 	}
 
-	private JSONObject getAclImpl(String bucketName, String objectKey) throws Exception
+	private JsonObject getAclImpl(String bucketName, String objectKey) throws Exception
 	{
 		Map<String, String> parameters= new HashMap<String, String>();
 		parameters.put("acl", null);
@@ -697,42 +700,43 @@ public class RiakCSClientImpl
 		HttpURLConnection conn= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url);
 
 		Document xmlDoc= XMLUtils.parseToDocument(conn.getInputStream(), debugModeEnabled);
-		JSONObject acl= new JSONObject();
+		JsonObject acl= new JsonObject();
+        JsonArray grantsList = new JsonArray();
 
 		for (Node grantNode : XMLUtils.xpathToNodeList("//Grant", xmlDoc))
 		{
-			JSONObject grant= new JSONObject();
-			grant.put("permission", XMLUtils.xpathToContent("Permission", grantNode));
+			JsonObject grant= new JsonObject();
+			grant.addProperty("permission", XMLUtils.xpathToContent("Permission", grantNode));
 
 			String type= XMLUtils.xpathToContent("Grantee/@type", grantNode);
 
-			JSONObject grantee= new JSONObject();
-			grantee.put("type", type);
+			JsonObject grantee= new JsonObject();
+			grantee.addProperty("type", type);
 
 			if (type.equals("Group"))
 			{
-				grantee.put("uri", XMLUtils.xpathToContent("Grantee/URI", grantNode));
+				grantee.addProperty("uri", XMLUtils.xpathToContent("Grantee/URI", grantNode));
 			} else
 			{
-				grantee.put("id",XMLUtils.xpathToContent("Grantee/ID", grantNode));
-				grantee.put("displayName", XMLUtils.xpathToContent("Grantee/DisplayName", grantNode));
+				grantee.addProperty("id",XMLUtils.xpathToContent("Grantee/ID", grantNode));
+				grantee.addProperty("displayName", XMLUtils.xpathToContent("Grantee/DisplayName", grantNode));
 			}
-			grant.put("grantee", grantee);
-			acl.append("grantsList", grant);
+			grant.add("grantee", grantee);
+			grantsList.add(grant);
 		}
-		
-		JSONObject owner= new JSONObject();
-		owner.put("id", XMLUtils.xpathToContent("//Owner/ID", xmlDoc));
-		owner.put("displayName", XMLUtils.xpathToContent("//Owner/DisplayName", xmlDoc));
-		acl.put("owner", owner);
+		acl.add("grantsList", grantsList);
+		JsonObject owner= new JsonObject();
+		owner.addProperty("id", XMLUtils.xpathToContent("//Owner/ID", xmlDoc));
+		owner.addProperty("displayName", XMLUtils.xpathToContent("//Owner/DisplayName", xmlDoc));
+		acl.add("owner", owner);
 		return acl;
 	}
 
-	public JSONObject getAccessStatistic(String keyForUser, int howManyHrsBack) throws RiakCSException
+	public JsonObject getAccessStatistic(String keyForUser, int howManyHrsBack) throws RiakCSException
 	{		
 		if(endpointIsS3()) throw new RiakCSException("Not supported by AWS S3");
 
-		JSONObject result= null;
+		JsonObject result= null;
 		
 		try {
 			iso8601DateFormat.setTimeZone(new SimpleTimeZone(0, "GMT"));
@@ -740,7 +744,7 @@ public class RiakCSClientImpl
 			Date endTime  = new Date(System.currentTimeMillis());
 			Date startTime= new Date(System.currentTimeMillis()-(howManyHrsBack*60*60*1000));
 	
-			StringBuffer path= new StringBuffer();
+			StringBuilder path = new StringBuilder();
 			path.append("/usage");
 			path.append("/");
 			path.append(keyForUser);
@@ -756,8 +760,8 @@ public class RiakCSClientImpl
 			HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, EMPTY_STRING_MAP);
 	
 			InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
-			result= new JSONObject(new JSONTokener(inputStreamReader));
-			result= result.getJSONObject("Access");
+			result= new JsonParser().parse(inputStreamReader).getAsJsonObject();
+			result= result.getAsJsonObject("Access");
 
 		} catch(Exception e)
 		{
@@ -767,11 +771,11 @@ public class RiakCSClientImpl
 		return result;
 	}
 
-	public JSONObject getStorageStatistic(String keyForUser, int howManyHrsBack) throws RiakCSException
+	public JsonObject getStorageStatistic(String keyForUser, int howManyHrsBack) throws RiakCSException
 	{
 		if(endpointIsS3()) throw new RiakCSException("Not supported by AWS S3");
 
-		JSONObject result= null;
+		JsonObject result= null;
 		
 		try {
 			iso8601DateFormat.setTimeZone(new SimpleTimeZone(0, "GMT"));
@@ -779,7 +783,7 @@ public class RiakCSClientImpl
 			Date endTime  = new Date(System.currentTimeMillis());
 			Date startTime= new Date(System.currentTimeMillis()-(howManyHrsBack*60*60*1000));
 	
-			StringBuffer path= new StringBuffer();
+			StringBuilder path= new StringBuilder();
 			path.append("/usage");
 			path.append("/");
 			path.append(keyForUser);
@@ -795,8 +799,8 @@ public class RiakCSClientImpl
 			HttpURLConnection connection= comLayer.makeCall(CommunicationLayer.HttpMethod.GET, url, null, EMPTY_STRING_MAP);
 	
 			InputStreamReader inputStreamReader= new InputStreamReader(connection.getInputStream(), "UTF-8");
-			result= new JSONObject(new JSONTokener(inputStreamReader));
-			result= result.getJSONObject("Storage");
+			result= new JsonParser().parse(inputStreamReader).getAsJsonObject();
+			result= result.getAsJsonObject("Storage");
 
 		} catch(Exception e)
 		{
@@ -809,26 +813,18 @@ public class RiakCSClientImpl
 
 	public void removeContentOfBucket(String bucketName) throws RiakCSException
 	{
-		try
-		{
-			JSONObject response= listObjects(bucketName, false);
-			JSONArray resultList= response.getJSONArray("objectList");
+		
+        JsonObject response= listObjects(bucketName, false);
+        JsonArray resultList= response.getAsJsonArray("objectList");
 
 //			if (debugModeEnabled) System.out.println("Number of Objects to delete: "+ resultList.length() + "\n");
-			System.out.println("Number of Objects to delete: "+ resultList.length() + "\n");
+        System.out.println("Number of Objects to delete: "+ resultList.size() + "\n");
 
-			for(int pt=0; pt < resultList.length(); pt++)
-			{
-				String key= resultList.getJSONObject(pt).getString("key");
-				deleteObject(bucketName, key);
-			}
-
-		} catch(JSONException e)
-		{
-			throw new RiakCSException(e);
-		}
-	
-		
+        for(int pt=0; pt < resultList.size(); pt++)
+        {
+            String key= resultList.get(pt).getAsJsonObject().get("key").getAsString();
+            deleteObject(bucketName, key);
+        }
 	}
 
 
@@ -875,8 +871,7 @@ public class RiakCSClientImpl
 
 	private String fixName(String name) throws RiakCSException
 	{
-		//There are certain naming restrictions for S3 objects
-		StringBuffer result= new StringBuffer();
+		StringBuilder result= new StringBuilder();
 
 		for(int pt= 0; pt < name.length(); pt++)
 		{
@@ -895,35 +890,35 @@ public class RiakCSClientImpl
 	{
 		try
 		{
-			JSONObject response= fromSystem.listObjectNames(fromBucket);
-			JSONArray resultList= response.getJSONArray("objectList");
+			JsonObject response= fromSystem.listObjectNames(fromBucket);
+			JsonArray resultList= response.getAsJsonArray("objectList");
 	
-			System.out.println("Number of Objects to transfer: "+ resultList.length() + "\n");
+			System.out.println("Number of Objects to transfer: "+ resultList.size() + "\n");
 			
-			for(int pt=0; pt < resultList.length(); pt++)
+			for(int pt=0; pt < resultList.size(); pt++)
 			{
-				String key= resultList.getJSONObject(pt).getString("key");
+				String key = resultList.get(pt).getAsJsonObject().get("key").getAsString();
 				File tempFile= File.createTempFile("cscopy-", ".bin");
 				
 				//Retrieve Object
 				FileOutputStream outputStream= new FileOutputStream(tempFile);
-				JSONObject objectData= fromSystem.getObject(fromBucket, key, outputStream);
+				JsonObject objectData= fromSystem.getObject(fromBucket, key, outputStream);
 				outputStream.close();
 
 				//Upload Object
 				Map<String, String> headers = new HashMap<String, String>();
-				headers.put("Content-Type", objectData.getString("contenttype"));
+				headers.put("Content-Type", objectData.get("contenttype").getAsString());
 
 				Map<String, String> metadata= null;
-				if (objectData.has("metadata") && objectData.getJSONObject("metadata").length() > 0)
+				if (objectData.has("metadata") && !objectData.getAsJsonObject("metadata").entrySet().isEmpty())
 				{
 					metadata= new HashMap<String, String>();
 
-					JSONObject metadataRaw= objectData.getJSONObject("metadata");
-					String[] metaKeys= JSONObject.getNames(metadataRaw);
-					for(String metaKey : metaKeys)
+					Set<Map.Entry<String, JsonElement>> metadataRaw = objectData.getAsJsonObject("metadata").entrySet();
+					//String[] metaKeys= JSONObject.getNames(metadataRaw);
+					for(Map.Entry<String, JsonElement> entry : metadataRaw)
 					{
-						metadata.put(metaKey, metadataRaw.getString(metaKey));
+						metadata.put(entry.getKey(), entry.getValue().getAsString());
 					}
 				}
 
