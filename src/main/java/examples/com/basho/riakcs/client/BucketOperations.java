@@ -15,9 +15,9 @@
  */
 package examples.com.basho.riakcs.client;
 
-import org.json.*;
 
 import com.basho.riakcs.client.api.*;
+import com.google.gson.JsonObject;
 
 public class BucketOperations
 {
@@ -45,11 +45,11 @@ public class BucketOperations
 
 	private static void runItImpl(RiakCSClient csClient, String bucketName) throws Exception
 	{
-		JSONObject result= null;
+		JsonObject result= null;
 		
 		// list buckets
 		result= csClient.listBuckets();
-		System.out.println(result.toString(2));
+		System.out.println(result);
 
 		// create bucket
 		csClient.createBucket(bucketName);
@@ -60,11 +60,11 @@ public class BucketOperations
 
 		// list buckets
 		result= csClient.listBuckets();
-		System.out.println(result.toString(2));
+		System.out.println(result);
 
 		// get ACL
 		result= csClient.getACLForBucket(bucketName);
-		System.out.println(result.toString(2));
+		System.out.println(result);
 
 //		if (csClient.endpointIsS3() == false) // just run it against RiakCS
 //		{
@@ -81,14 +81,14 @@ public class BucketOperations
 
 		// get ACL
 		result= csClient.getACLForBucket(bucketName);
-		System.out.println(result.toString(2));
+		System.out.println(result);
 
 		// delete bucket
 		csClient.deleteBucket(bucketName);
 		
 		// list buckets
 		result= csClient.listBuckets();
-		System.out.println(result.toString(2));
+		System.out.println(result);
 
 	}
 

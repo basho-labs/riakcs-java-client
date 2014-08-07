@@ -18,9 +18,9 @@ package examples.com.basho.riakcs.client;
 import java.io.*;
 import java.util.*;
 
-import org.json.*;
 
 import com.basho.riakcs.client.api.*;
+import com.google.gson.JsonObject;
 
 public class CopyOperations
 {
@@ -71,17 +71,17 @@ public class CopyOperations
 
 		
 		// retrieve data
-		JSONObject result= s3Client.listObjects(bucketName);
-		System.out.println(result.toString(2));
+		JsonObject result= s3Client.listObjects(bucketName);
+		System.out.println(result);
 		
 		result= csClient.listObjects(bucketName);
-		System.out.println(result.toString(2));
+		System.out.println(result);
 
 		result= csClient.getObject(bucketName, "test1.txt");
-		System.out.println(result.toString(2));
+		System.out.println(result);
 		
 		result= csClient.getObject(bucketName, "/test/test1.txt");
-		System.out.println(result.toString(2));
+		System.out.println(result);
 		
 		// cleanup
 		s3Client.removeBucketAndContent(bucketName);

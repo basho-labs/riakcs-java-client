@@ -915,8 +915,8 @@ public class RiakCSClientImpl
 					metadata= new HashMap<String, String>();
 
 					Set<Map.Entry<String, JsonElement>> metadataRaw = objectData.getAsJsonObject("metadata").entrySet();
-					//String[] metaKeys= JSONObject.getNames(metadataRaw);
-					for(Map.Entry<String, JsonElement> entry : metadataRaw)
+
+                    for(Map.Entry<String, JsonElement> entry : metadataRaw)
 					{
 						metadata.put(entry.getKey(), entry.getValue().getAsString());
 					}
