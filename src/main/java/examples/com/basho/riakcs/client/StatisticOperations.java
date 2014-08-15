@@ -15,9 +15,9 @@
  */
 package examples.com.basho.riakcs.client;
 
-import org.json.*;
 
 import com.basho.riakcs.client.api.*;
+import com.google.gson.JsonObject;
 
 public class StatisticOperations
 {
@@ -28,19 +28,19 @@ public class StatisticOperations
 		RiakCSClient csClient= new RiakCSClient(csCredentials.getCSAccessKey(), csCredentials.getsCSSecretKey(), csCredentials.getCSEndPoint(), csCredentials.getUseHttps());
 		if (enableDebugOutput) csClient.enableDebugOutput();
 
-		JSONObject accessStats= null;
+		JsonObject accessStats= null;
 
 		// get access stats
 		int lastTwelveHrs= 12;
 		accessStats= csClient.getAccessStatistic(csCredentials.getCSAccessKey(), lastTwelveHrs);
 		
-		System.out.println(accessStats.toString(2));
+		System.out.println(accessStats);
 		
 		// get storage stats
 		int lastTwentyFourHrs= 24;
-		JSONObject storageStats= csClient.getStorageStatistic(csCredentials.getCSAccessKey(), lastTwentyFourHrs);
+		JsonObject storageStats= csClient.getStorageStatistic(csCredentials.getCSAccessKey(), lastTwentyFourHrs);
 		
-		System.out.println(storageStats.toString(2));
+		System.out.println(storageStats);
 		
 	}
 

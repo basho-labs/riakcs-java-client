@@ -18,9 +18,9 @@ package examples.com.basho.riakcs.client;
 import java.io.*;
 import java.util.*;
 
-import org.json.*;
 
 import com.basho.riakcs.client.api.*;
+import com.google.gson.JsonObject;
 
 
 public class ObjectOperations
@@ -55,7 +55,7 @@ public class ObjectOperations
 
 	private static void runItImpl(RiakCSClient csClient, String bucketName, String objectKey, String outputFilename) throws Exception
 	{
-		JSONObject result= null;
+		JsonObject result= null;
 
 		// create bucket
 		csClient.createBucket(bucketName);
@@ -76,11 +76,11 @@ public class ObjectOperations
 
 		// get object info
 		result= csClient.getObjectInfo(bucketName, objectKey);
-		System.out.println(result.toString(2));
+		System.out.println(result);
 
 		// get ACL
 		result= csClient.getACLForObject(bucketName, objectKey);
-		System.out.println(result.toString(2));
+		System.out.println(result);
 
 		// set ACL
 //		if (csClient.endpointIsS3() == false)
@@ -100,27 +100,27 @@ public class ObjectOperations
 	
 			// get ACL
 			result= csClient.getACLForObject(bucketName, objectKey);
-			System.out.println(result.toString(2));
+			System.out.println(result);
 		}
 
 		// get object, content comes as part of the JSONObject
 		result= csClient.getObject(bucketName, objectKey);
-		System.out.println(result.toString(2));
+		System.out.println(result);
 
 		// get object, write content to file
 		result= csClient.getObject(bucketName, objectKey, new FileOutputStream(outputFilename));
-		System.out.println(result.toString(2));
+		System.out.println(result);
 
 		// list objects
 		result= csClient.listObjects(bucketName);		
-		System.out.println(result.toString(2));
+		System.out.println(result);
 		
 		// delete object
 		csClient.deleteObject(bucketName, objectKey);
 		
 		// list objects
 		result= csClient.listObjects(bucketName);		
-		System.out.println(result.toString(2));
+		System.out.println(result);
 	
 		
 		// try out some larger file

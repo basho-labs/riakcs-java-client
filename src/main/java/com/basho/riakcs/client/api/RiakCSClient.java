@@ -17,11 +17,9 @@ package com.basho.riakcs.client.api;
 
 import java.io.*;
 import java.util.*;
-
-import org.json.*;
-
 import com.basho.riakcs.client.impl.*;
 import com.basho.riakcs.client.impl.RiakCSClientImpl.UserListMode;
+import com.google.gson.JsonObject;
 
 public class RiakCSClient
 {
@@ -52,37 +50,37 @@ public class RiakCSClient
 	// User Admin APIs
 	//
 
-	public JSONObject createUser(String fullname, String emailAddress) throws RiakCSException
+	public JsonObject createUser(String fullname, String emailAddress) throws RiakCSException
 	{
 		// requires CS >= 1.2
 		return csClient.createUser(fullname, emailAddress);			
 	}
 
-	public JSONObject listUsers() throws RiakCSException
+	public JsonObject listUsers() throws RiakCSException
 	{
 		// requires CS >= 1.2
 		return csClient.listUsers(UserListMode.ALL);
 	}
 
-	public JSONObject listEnabledUsers() throws RiakCSException
+	public JsonObject listEnabledUsers() throws RiakCSException
 	{
 		// requires CS >= 1.2
 		return csClient.listUsers(UserListMode.ENABLED_ONLY);
 	}
 
-	public JSONObject listDisabledUsers() throws RiakCSException
+	public JsonObject listDisabledUsers() throws RiakCSException
 	{
 		// requires CS >= 1.2
 		return csClient.listUsers(UserListMode.DISABLED_ONLY);
 	}
 
-	public JSONObject getUserInfo(String key_id) throws RiakCSException
+	public JsonObject getUserInfo(String key_id) throws RiakCSException
 	{
 		// requires CS >= 1.2
 		return csClient.getUserInfo(key_id);
 	}
 
-	public JSONObject getMyUserInfo() throws RiakCSException
+	public JsonObject getMyUserInfo() throws RiakCSException
 	{
 		// requires CS >= 1.2
 		return csClient.getMyUserInfo();
@@ -109,7 +107,7 @@ public class RiakCSClient
 		csClient.createBucket(bucketName);
 	}
 
-	public JSONObject listBuckets() throws RiakCSException
+	public JsonObject listBuckets() throws RiakCSException
 	{
 		return csClient.listBuckets();
 	}
@@ -119,7 +117,7 @@ public class RiakCSClient
 		return csClient.isBucketAccessible(bucketName);
 	}
 	
-	public JSONObject getACLForBucket(String bucketName) throws RiakCSException
+	public JsonObject getACLForBucket(String bucketName) throws RiakCSException
 	{
 		return csClient.getACLForBucket(bucketName);
 	}
@@ -138,36 +136,36 @@ public class RiakCSClient
 		csClient.createObject(bucketName, objectKey, dataInputStream, headers, metadata);
 	}
 	
-	public JSONObject listObjects(String bucketName) throws RiakCSException
+	public JsonObject listObjects(String bucketName) throws RiakCSException
 	{
 		//Can be slow with large number of objects
 		return csClient.listObjects(bucketName);
 	}
 	
-	public JSONObject listObjectNames(String bucketName) throws RiakCSException
+	public JsonObject listObjectNames(String bucketName) throws RiakCSException
 	{
 		//Can be slow with large number of objects
 		return csClient.listObjects(bucketName, false);
 	}
 	
-	public JSONObject getObject(String bucketName, String objectKey) throws RiakCSException
+	public JsonObject getObject(String bucketName, String objectKey) throws RiakCSException
 	{
-		// Content gets returned as part of the JSONObject
+		// Content gets returned as part of the JsonObject
 		return csClient.getObject(bucketName, objectKey);
 	}
 	
-	public JSONObject getObject(String bucketName, String objectKey, OutputStream dataOutputStream) throws RiakCSException
+	public JsonObject getObject(String bucketName, String objectKey, OutputStream dataOutputStream) throws RiakCSException
 	{
 		// Content gets written into outputStream
 		return csClient.getObject(bucketName, objectKey, dataOutputStream);
 	}
 
-	public JSONObject getObjectInfo(String bucketName, String objectKey) throws RiakCSException
+	public JsonObject getObjectInfo(String bucketName, String objectKey) throws RiakCSException
 	{
 		return csClient.getObjectInfo(bucketName, objectKey);
 	}
 	
-	public JSONObject getACLForObject(String bucketName, String objectKey) throws RiakCSException
+	public JsonObject getACLForObject(String bucketName, String objectKey) throws RiakCSException
 	{
 		return csClient.getACLForObject(bucketName, objectKey);
 	}
@@ -215,13 +213,13 @@ public class RiakCSClient
 	// Statistic APIs
 	//
 
-	public JSONObject getAccessStatistic(String keyForUser, int howManyHrsBack) throws RiakCSException
+	public JsonObject getAccessStatistic(String keyForUser, int howManyHrsBack) throws RiakCSException
 	{
 		// requires CS >= 1.2
 		return csClient.getAccessStatistic(keyForUser, howManyHrsBack);
 	}
 
-	public JSONObject getStorageStatistic(String keyForUser, int howManyHrsBack) throws RiakCSException
+	public JsonObject getStorageStatistic(String keyForUser, int howManyHrsBack) throws RiakCSException
 	{
 		// requires CS >= 1.2
 		return csClient.getStorageStatistic(keyForUser, howManyHrsBack);

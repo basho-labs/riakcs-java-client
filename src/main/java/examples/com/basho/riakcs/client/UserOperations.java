@@ -15,9 +15,9 @@
  */
 package examples.com.basho.riakcs.client;
 
-import org.json.*;
 
 import com.basho.riakcs.client.api.*;
+import com.google.gson.JsonObject;
 
 public class UserOperations
 {
@@ -35,8 +35,8 @@ public class UserOperations
 //		result= csClient.getUserInfo(key_id);
 //		System.out.println(result.toString(2));
 		
-		JSONObject userInfo= csClient.getMyUserInfo();
-		System.out.println(userInfo.toString(2));
+		JsonObject userInfo = csClient.getMyUserInfo();
+		System.out.println(userInfo);
 
 //		JSONObject userInfo= csClient.getUserInfo("GFUPU2YDTCICR4PMOGRP"); // use key_id from existing user
 //		System.out.println(userInfo.toString(2));
@@ -47,14 +47,14 @@ public class UserOperations
 //
 //		csClient.enableUser("TK9KAEBX201ERVTPCNB5"); // use key_id from existing user
 		
-		JSONObject userList= csClient.listUsers();
-		System.out.println(userList.toString(2));
+		JsonObject userList = csClient.listUsers();
+		System.out.println(userList);
 
 		userList= csClient.listEnabledUsers();
-		System.out.println(userList.toString(2));
+		System.out.println(userList);
 
 		userList= csClient.listDisabledUsers();
-		System.out.println(userList.toString(2));
+		System.out.println(userList);
 	}
 
 }
