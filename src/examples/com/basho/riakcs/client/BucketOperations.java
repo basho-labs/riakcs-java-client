@@ -18,6 +18,7 @@ package examples.com.basho.riakcs.client;
 import org.json.*;
 
 import com.basho.riakcs.client.api.*;
+import com.basho.riakcs.client.impl.RiakCSClientImpl;
 
 public class BucketOperations
 {
@@ -30,11 +31,11 @@ public class BucketOperations
 		if (runAgainstRiakCS)
 		{
 			CSCredentials csCredentials= new CSCredentials(CSCredentials.class.getResourceAsStream("CSCredentials.Riak.properties"));			
-			csClient= new RiakCSClient(csCredentials.getCSAccessKey(), csCredentials.getsCSSecretKey(), csCredentials.getCSEndPoint(), csCredentials.getUseHttps());
+			csClient= new RiakCSClientImpl(csCredentials.getCSAccessKey(), csCredentials.getsCSSecretKey(), csCredentials.getCSEndPoint(), csCredentials.getUseHttps());
 
 		} else {
 			CSCredentials s3Credentials= new CSCredentials(CSCredentials.class.getResourceAsStream("CSCredentials.AWS.properties"));
-			csClient= new RiakCSClient(s3Credentials.getCSAccessKey(), s3Credentials.getsCSSecretKey());
+			csClient= new RiakCSClientImpl(s3Credentials.getCSAccessKey(), s3Credentials.getsCSSecretKey());
 			
 		}
 
