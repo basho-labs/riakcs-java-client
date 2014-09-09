@@ -39,7 +39,7 @@ public class ObjectOperations
 			CSCredentials csCredentials= new CSCredentials(CSCredentials.class.getResourceAsStream("CSCredentials.Riak.properties"));			
 			csClient= new RiakCSClientImpl(csCredentials.getCSAccessKey(), csCredentials.getsCSSecretKey(), csCredentials.getCSEndPoint(), csCredentials.getUseHttps());
 
-			outputFilename= "/tmp/riakout.txt";
+			outputFilename= "target/riakout.txt";
 
 		} else {
 			CSCredentials s3Credentials= new CSCredentials(CSCredentials.class.getResourceAsStream("CSCredentials.AWS.properties"));
