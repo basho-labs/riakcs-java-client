@@ -416,7 +416,7 @@ public class RiakCSClientServiceImpl {
 			if (headerName == null)
 				continue;
 
-			if (headerName.startsWith("x-amz-meta")) {
+			if (headerName.toLowerCase().startsWith("x-amz-meta")) {
 				metadata.put(headerName.substring(11), conn.getHeaderFields().get(headerName).get(0));
 			} else {
 				responseHeaders.put(headerName, conn.getHeaderFields().get(headerName).get(0));
