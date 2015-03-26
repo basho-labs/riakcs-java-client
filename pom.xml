@@ -22,7 +22,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>examples.com.basho.riakcs.client.Playground</mainClass>
+							<mainClass>examples.com.basho.riakcs.client.TestRiakCsClientSetup</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
