@@ -2,22 +2,73 @@ package com.basho.riakcs.client.api;
 
 import org.json.JSONObject;
 
+/**
+ * Interface for user management operations
+ */
 public interface RiakCSUserManagement {
 
-	public abstract void disableUser(String key_id);
+	/**
+	 * Disable a user
+	 * 
+	 * @param key_id
+	 *            ID of the user to disable
+	 */
+	void disableUser(String key_id);
 
-	public abstract void enableUser(String key_id);
+	/**
+	 * Enable a user
+	 * 
+	 * @param key_id
+	 *            ID of the user to enable
+	 */
+	void enableUser(String key_id);
 
-	public abstract JSONObject createUser(String fullname, String emailAddress);
+	/**
+	 * Create a new user
+	 * 
+	 * @param fullname
+	 *            Full name of the user
+	 * @param emailAddress
+	 *            email of the user
+	 * @return JSON object of the created user
+	 */
+	JSONObject createUser(String fullname, String emailAddress);
 
-	public abstract JSONObject listUsers();
+	/**
+	 * List all users
+	 * 
+	 * @return JSON object with all users
+	 */
+	JSONObject listUsers();
 
-	public abstract JSONObject listEnabledUsers();
+	/**
+	 * List all enabled users
+	 * 
+	 * @return JSON object with all enabled users
+	 */
+	JSONObject listEnabledUsers();
 
-	public abstract JSONObject listDisabledUsers();
+	/**
+	 * List all disabled users
+	 * 
+	 * @return JSON object with all disabled users
+	 */
+	JSONObject listDisabledUsers();
 
-	public abstract JSONObject getUserInfo(String key_id);
+	/**
+	 * Get a users information by id
+	 * 
+	 * @param key_id
+	 *            id of the user
+	 * @return ID of user to get information
+	 */
+	JSONObject getUserInfo(String key_id);
 
-	public abstract JSONObject getMyUserInfo();
+	/**
+	 * Get the current user information
+	 * 
+	 * @return JSON object with current user information
+	 */
+	JSONObject getMyUserInfo();
 
 }

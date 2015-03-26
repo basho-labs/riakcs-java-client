@@ -29,8 +29,8 @@ import java.util.Set;
 import java.util.SimpleTimeZone;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONRuntimeException;
 import org.json.JSONTokener;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -408,7 +408,7 @@ public class RiakCSClientServiceImpl {
 		return object;
 	}
 
-	private JSONObject extractMetaInfoForObject(String objectKey, HttpURLConnection conn) throws JSONException {
+	private JSONObject extractMetaInfoForObject(String objectKey, HttpURLConnection conn) {
 		Map<String, String> responseHeaders = new HashMap<String, String>();
 		JSONObject metadata = new JSONObject();
 
@@ -757,7 +757,7 @@ public class RiakCSClientServiceImpl {
 				deleteObject(bucketName, key);
 			}
 
-		} catch (JSONException e) {
+		} catch (JSONRuntimeException e) {
 			throw new RiakCSException(e);
 		}
 

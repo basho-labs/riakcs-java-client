@@ -1,0 +1,35 @@
+repositories {
+	mavenLocal()
+	mavenCentral()
+	jcenter()
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+
+group = 'com.cf.internal'
+version = '0.0.3-SNAPSHOT'
+
+compileJava {
+	options.debug = true
+	options.debugOptions.debugLevel = "source,vars,lines"
+	sourceCompatibility=1.5
+}
+
+task sourcesJar(type: Jar) {
+	classifier 'sources'
+	from sourceSets.main.allSource
+}
+task javadocJar(type: Jar, dependsOn: javadoc) {
+	classifier 'javadoc'
+	from javadoc.destinationDir
+}
+artifacts {
+	archives sourcesJar
+	archives javadocJar
+}
+
+task wrapper(type: Wrapper) {
+	gradleVersion = '2.3'
+}
+

@@ -53,6 +53,8 @@ public class TestRiakCsClientSetup {
 	 * 
 	 * @param csClient
 	 *            to test
+	 * @param outputFileLocation
+	 *            location to output
 	 * @throws Exception
 	 *             if error occurs
 	 */
