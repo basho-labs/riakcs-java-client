@@ -7,6 +7,15 @@ import com.google.gson.JsonObject;
  */
 public interface RiakCSUserManagement {
 
+	/**
+	 * Create a user with specified email address
+	 * 
+	 * @param fullname
+	 *            full name of the user
+	 * @param emailAddress
+	 *            email of the user
+	 * @return {@link JsonObject} with user information
+	 */
 	JsonObject createUser(String fullname, String emailAddress);
 
 	JsonObject listUsers();

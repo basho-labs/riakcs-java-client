@@ -26,10 +26,33 @@ import com.google.gson.JsonObject;
 public interface RiakCSClient extends RiakCSUserManagement,
 		RiakCSBucketManagement, RiakCSObjectManagement {
 
-	// "Canned" ACLs for buckets and objects
+	/**
+	 * "Canned" ACLs for buckets and objects
+	 * <p>
+	 * Owner gets FULL_CONTROL
+	 */
 	public static final String PERM_PRIVATE = "private";
+
+	/**
+	 * "Canned" ACLs for buckets and objects
+	 * <p>
+	 * Owner gets FULL_CONTROL. The AllUsers group gets READ access.
+	 */
 	public static final String PERM_PUBLIC_READ = "public-read";
+
+	/**
+	 * "Canned" ACLs for buckets and objects
+	 * <p>
+	 * Owner gets FULL_CONTROL. The AllUsers group gets READ and WRITE access.
+	 * Granting this on a bucket is generally not recommended.
+	 */
 	public static final String PERM_PUBLIC_READ_WRITE = "public-read-write";
+	
+	/**
+	 * "Canned" ACLs for buckets and objects
+	 * <p>
+	 * Owner gets FULL_CONTROL. The AuthenticatedUsers group gets READ access.
+	 */
 	public static final String PERM_AUTHENTICATED_READ = "authenticated-read";
 
 	/**
