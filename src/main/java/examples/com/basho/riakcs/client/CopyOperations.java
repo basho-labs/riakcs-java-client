@@ -18,8 +18,8 @@ package examples.com.basho.riakcs.client;
 import java.io.*;
 import java.util.*;
 
-
 import com.basho.riakcs.client.api.*;
+import com.basho.riakcs.client.impl.RiakCSClientImpl;
 import com.google.gson.JsonObject;
 
 public class CopyOperations
@@ -27,10 +27,10 @@ public class CopyOperations
 	public static void runIt(boolean enableDebugOutput) throws Exception
 	{
 		CSCredentials csCredentials= new CSCredentials(CSCredentials.class.getResourceAsStream("CSCredentials.Riak.properties"));			
-		RiakCSClient csClient= new RiakCSClient(csCredentials.getCSAccessKey(), csCredentials.getsCSSecretKey(), csCredentials.getCSEndPoint(), csCredentials.getUseHttps());
+		RiakCSClient csClient= new RiakCSClientImpl(csCredentials.getCSAccessKey(), csCredentials.getsCSSecretKey(), csCredentials.getCSEndPoint(), csCredentials.getUseHttps());
 
 		CSCredentials s3Credentials= new CSCredentials(CSCredentials.class.getResourceAsStream("CSCredentials.AWS.properties"));
-		RiakCSClient s3Client= new RiakCSClient(s3Credentials.getCSAccessKey(), s3Credentials.getsCSSecretKey());
+		RiakCSClient s3Client= new RiakCSClientImpl(s3Credentials.getCSAccessKey(), s3Credentials.getsCSSecretKey());
 			
 		if (enableDebugOutput) csClient.enableDebugOutput();
 		if (enableDebugOutput) s3Client.enableDebugOutput();
@@ -67,7 +67,7 @@ public class CopyOperations
 
 		
 		// copy from S3 to CS
-		RiakCSClient.copyBucketBetweenSystems(s3Client, bucketName, csClient, bucketName);
+		RiakCSClientImpl.copyBucketBetweenSystems(s3Client, bucketName, csClient, bucketName);
 
 		
 		// retrieve data

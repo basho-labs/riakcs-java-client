@@ -17,6 +17,7 @@ package examples.com.basho.riakcs.client;
 
 
 import com.basho.riakcs.client.api.*;
+import com.basho.riakcs.client.impl.RiakCSClientImpl;
 import com.google.gson.JsonObject;
 
 public class UserOperations
@@ -25,7 +26,7 @@ public class UserOperations
 	{
 		CSCredentials csCredentials= new CSCredentials(CSCredentials.class.getResourceAsStream("CSCredentials.Riak.properties"));			
 
-		RiakCSClient csClient= new RiakCSClient(csCredentials.getCSAccessKey(), csCredentials.getsCSSecretKey(), csCredentials.getCSEndPoint(), csCredentials.getUseHttps());
+		RiakCSClient csClient= new RiakCSClientImpl(csCredentials.getCSAccessKey(), csCredentials.getsCSSecretKey(), csCredentials.getCSEndPoint(), csCredentials.getUseHttps());
 		if (enableDebugOutput) csClient.enableDebugOutput();
 
 		//create new user, and get info using newly created key_id

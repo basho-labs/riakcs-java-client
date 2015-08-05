@@ -7,6 +7,12 @@ http://shop.oreilly.com/product/9780596515812.do
 
 Example code can be found in: examples.com.basho.riakcs.client
 
+Project can be build using the embedded gradle wrapper with the below command
+Windows
+	gradlew.bat clean install
+Unix
+	gradlew clean install
+
 User Management (Riak CS only)
 
     JSONObject createUser(String fullname, String emailAddress)

@@ -29,7 +29,7 @@ public class CommunicationLayer
 {
     public enum HttpMethod {GET, HEAD, PUT, DELETE, POST};
 
-    private static final SimpleDateFormat rfc822DateFormat= new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
+    private static final SimpleDateFormat rfc822DateFormat= new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.ENGLISH);
 
     private String csAccessKey= null;
 	private String csSecretKey= null;

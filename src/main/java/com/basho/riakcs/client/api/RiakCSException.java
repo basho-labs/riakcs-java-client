@@ -15,17 +15,31 @@
  */
 package com.basho.riakcs.client.api;
 
-public class RiakCSException extends Exception
-{
-	private static final long serialVersionUID= 3652091041677170597L;
+/**
+ * All exceptions are converted to RuntimeException to reduce checked exceptions
+ */
+public class RiakCSException extends RuntimeException {
 
-	public RiakCSException(Exception e)
-	{
+	private static final long serialVersionUID = 3652091041677170597L;
+
+	/**
+	 * Wrap a checked {@link Exception} into a RuntimeException keeping the
+	 * stack trace in tact
+	 * 
+	 * @param e
+	 *            original {@link Exception}
+	 */
+	public RiakCSException(Exception e) {
 		super(e);
 	}
 
-	public RiakCSException(String errorMessage)
-	{
+	/**
+	 * Create a new RuntimeException with the passed string error message
+	 * 
+	 * @param errorMessage
+	 *            String message to set
+	 */
+	public RiakCSException(String errorMessage) {
 		super(errorMessage);
 	}
 
